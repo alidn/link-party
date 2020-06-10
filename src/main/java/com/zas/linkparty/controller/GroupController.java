@@ -44,8 +44,12 @@ public class GroupController {
     }
 
     @GetMapping("/api/groups/{id}/bookmarks/add")
-    public boolean addBookmark(@PathVariable Long id, @RequestBody Bookmark bookmark) {
-        return this.groupRepository.saveBookmark(id, bookmark);
+    public boolean addBookmark(Principal principal, @PathVariable Long id, @RequestBody Bookmark bookmark) {
+        if (groupRepository.canAddBookmark(principal.getName(), id)) {
+            return groupRepository.saveBookmark(id, bookmark);
+        } else {
+            return false;
+        }
     }
 
     @GetMapping("/api/groups/add/{groupName}")

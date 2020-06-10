@@ -25,11 +25,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api").permitAll()
                 .antMatchers("/api/*").authenticated()
                 .antMatchers("/api/*/*").authenticated()
-                .antMatchers("/api/*/*/*").authenticated();;
+                .antMatchers("/api/*/*/*").authenticated();
+//        .and().formLogin().loginPage("/login");;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(new CustomAuthenticationProvider(this.userRepository));
     }
+
+
 }

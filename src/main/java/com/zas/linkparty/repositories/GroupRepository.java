@@ -481,6 +481,36 @@ public class GroupRepository implements GroupCrudRepository {
         return false;
     }
 
+    public boolean canAddBookmark(String username, Long groupId) {
+        Connection connection = null;
+        final String sqlCanAddBookmark = "select membership_id\n" +
+                "    from memberships\n" +
+                "    inner join users\n" +
+                "        on memberships.user_id = users.user_id and\n" +
+                "           users.username = ?" +
+                "    where (memberships.type = 'created' or\n" +
+                "           memberships.type = 'can_edit') and\n" +
+                "          memberships.group_id = ?;";
+        try {
+            connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlCanAddBookmark);
+            preparedStatement.setString(1, username);
+            preparedStatement.setLong(2, groupId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            }
+        }
+        return false;
+    }
+
     public boolean isCreator(String username, String url) {
         Connection connection = null;
         final String sqlIsCreator = "select groups.group_id\n" +
@@ -520,10 +550,79 @@ public class GroupRepository implements GroupCrudRepository {
     }
 
     public boolean upgradeStatus(String username, String url) {
+        final String sqlUpdateStatus = "update memberships\n" +
+                "    set type = 'can_view'\n" +
+                "from users, groups\n" +
+                "     where users.user_id = ? and\n" +
+                "           memberships.group_id = groups.group_id and\n" +
+                "           groups.invite_edit_url = ? and\n" +
+                "           users.user_id = memberships.user_id\n" +
+                "\n;";
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdateStatus);
+            preparedStatement.setString(1, username);
+            UUID urlUUID;
+            try {
+                urlUUID = UUID.fromString(url);
+                preparedStatement.setObject(2, urlUUID);
+                int rowsUpdated = preparedStatement.executeUpdate();
+                return rowsUpdated > 0;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            }
+        }
         return false;
     }
 
     public boolean join(String username, String url) {
+        final String sqlJoin = "insert into memberships (user_id, group_id, type)\n" +
+                "values ((select user_id from users where username = ?),\n" +
+                "        (select group_id from groups\n" +
+                "            where invite_edit_url = ? or\n" +
+                "                  invite_view_url = ?),\n" +
+                "        (case\n" +
+                "            when (select invite_view_url from groups where invite_view_url = ?) = ?\n" +
+                "                then 'can_view'\n" +
+                "            else 'can_edit'\n" +
+                "        end)::membership_type)\n";
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlJoin);
+            preparedStatement.setString(1, username);
+            UUID urlUUID;
+            try {
+                urlUUID = UUID.fromString(url);
+                preparedStatement.setObject(2, urlUUID);
+                preparedStatement.setObject(3, urlUUID);
+                preparedStatement.setObject(4, urlUUID);
+                preparedStatement.setObject(5, urlUUID);
+                int rowsUpdated = preparedStatement.executeUpdate();
+                return rowsUpdated > 0;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            }
+        }
         return false;
     }
 }

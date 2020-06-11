@@ -1,9 +1,13 @@
 package com.zas.linkparty.repositories;
 
+import com.zas.linkparty.ParameterSetter;
+import com.zas.linkparty.QueryExecutor;
+import com.zas.linkparty.ResultExtractor;
 import com.zas.linkparty.models.Bookmark;
 import com.zas.linkparty.models.Group;
 import com.zas.linkparty.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -19,70 +23,42 @@ public class GroupRepository implements GroupCrudRepository {
     private DataSource dataSource;
 
     @Override
-    public <S extends Group> S save(S group) {
+    public <S extends Group> S save(S group) throws DataAccessException {
         return null;
     }
 
-    public Optional<Group> save(String username, String groupName) {
-        Connection connection = null;
+    public Optional<Group> save(String username, String groupName) throws DataAccessException {
+        Optional<Group> group = save(groupName);
+        if (group.isEmpty()) {
+            throw new IllegalArgumentException("Group could not be saved");
+        }
+
         final String sqlSaveBookmark = "insert into memberships (user_id, group_id, type) " +
                 "select user_id, ?, 'created' from users where username = ?;";
-        try {
-            Optional<Group> group = save(groupName);
-            if (group.isEmpty()) {
-                return Optional.empty();
-            } else {
-                connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sqlSaveBookmark);
-                preparedStatement.setLong(1, group.get().getId());
-                preparedStatement.setString(2, username);
-                preparedStatement.executeUpdate();
-                return group;
-            }
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-                sqlException.printStackTrace();
-            }
-        }
-        return Optional.empty();
+        ParameterSetter parameterSetter = preparedStatement -> {
+            preparedStatement.setLong(1, group.get().getId());
+            preparedStatement.setString(2, username);
+        };
+        QueryExecutor<Void> queryExecutor = new QueryExecutor<>(dataSource, sqlSaveBookmark, parameterSetter);
+        queryExecutor.executeUpdate();
+        return group;
     }
 
-    public Optional<Group> save(String name) {
-        Connection connection = null;
+    public Optional<Group> save(String name) throws DataAccessException {
+        ParameterSetter parameterSetter = preparedStatement -> preparedStatement.setString(1, name);
+        ResultExtractor<Group> resultExtractor = resultSet -> {
+            if (!resultSet.next()) return Optional.empty();
+            Long groupId = resultSet.getLong(1);
+            String inviteEditUrl = resultSet.getString(2);
+            String inviteViewUrl = resultSet.getString(3);
+            Date dateCreated = resultSet.getDate(4);
+            Group result = new Group(groupId, name, dateCreated, inviteEditUrl, inviteViewUrl);
+            return Optional.of(result);
+        };
         final String sqlSaveBookmark = "insert into groups (group_name) " +
                 "values (?) returning group_id, invite_edit_url, invite_view_url, date_created;";
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlSaveBookmark);
-            preparedStatement.setString(1, name);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                Long groupId = resultSet.getLong(1);
-                String inviteEditUrl = resultSet.getString(2);
-                String inviteViewUrl = resultSet.getString(3);
-                Date dateCreated = resultSet.getDate(4);
-                Group result = new Group(groupId, name, dateCreated, inviteEditUrl, inviteViewUrl);
-                return Optional.of(result);
-            } else {
-                return Optional.empty();
-            }
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-                sqlException.printStackTrace();
-            }
-        }
-        return Optional.empty();
+        QueryExecutor<Group> queryExecutor = new QueryExecutor<>(dataSource, sqlSaveBookmark, parameterSetter, resultExtractor);
+        return queryExecutor.executeAndGetResult();
     }
 
     @Override
@@ -91,59 +67,35 @@ public class GroupRepository implements GroupCrudRepository {
     }
 
     @Override
-    public Optional<Group> findById(Long aLong) {
-        Connection connection = null;
+    public Optional<Group> findById(Long groupId) {
         final String sqlFindById = "select group_name, invite_edit_url, invite_view_url," +
                 " date_created from groups where group_id = ?;";
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlFindById);
-            preparedStatement.setLong(1, aLong);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String name = resultSet.getString(1);
-                String inviteEditUrl = resultSet.getString(2);
-                String inviteViewUrl = resultSet.getString(3);
-                Date dateCreated = resultSet.getDate(4);
-                Group group = new Group(aLong, name, dateCreated, inviteEditUrl, inviteViewUrl);
-                return Optional.of(group);
-            } else {
-                return Optional.empty();
-            }
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-                sqlException.printStackTrace();
-            }
-        }
-        return Optional.empty();
+        ParameterSetter parameterSetter = preparedStatement -> {
+          preparedStatement.setLong(1, groupId);
+        };
+        ResultExtractor<Group> resultExtractor = resultSet -> {
+          if (!resultSet.next()) return Optional.empty();
+            String name = resultSet.getString(1);
+            String inviteEditUrl = resultSet.getString(2);
+            String inviteViewUrl = resultSet.getString(3);
+            Date dateCreated = resultSet.getDate(4);
+            Group group = new Group(groupId, name, dateCreated, inviteEditUrl, inviteViewUrl);
+            return Optional.of(group);
+        };
+        QueryExecutor<Group> queryExecutor = new QueryExecutor<>(dataSource, sqlFindById, parameterSetter, resultExtractor);
+        return queryExecutor.executeAndGetResult();
     }
 
     @Override
-    public boolean existsById(Long aLong) {
-        Connection connection = null;
-        final String sqlFindById = "select group_name from groups where group_id = ?;";
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlFindById);
-            preparedStatement.setLong(1, aLong);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            return resultSet.next();
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-                sqlException.printStackTrace();
-            }
-        }
-        return false;
+    public boolean existsById(Long groupId) {
+        final String sqlExistsById = "select group_name from groups where group_id = ?;";
+        ParameterSetter parameterSetter = preparedStatement -> {
+            preparedStatement.setLong(1, groupId);
+        };
+        ResultExtractor<Boolean> resultExtractor = resultSet -> Optional.of(resultSet.next());
+        QueryExecutor<Boolean> queryExecutor = new QueryExecutor<>(dataSource, sqlExistsById, parameterSetter, resultExtractor);
+        Optional<Boolean> result = queryExecutor.executeAndGetResult();
+        return result.isPresent() && result.get();
     }
 
     @Override

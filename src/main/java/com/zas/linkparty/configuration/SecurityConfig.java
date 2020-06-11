@@ -25,8 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api").permitAll()
                 .antMatchers("/api/*").authenticated()
                 .antMatchers("/api/*/*").authenticated()
-                .antMatchers("/api/*/*/*").authenticated();
-//        .and().formLogin().loginPage("/login");;
+                .antMatchers("/api/*/*/*").authenticated()
+                .antMatchers("/auth/login").authenticated();
     }
 
     @Override

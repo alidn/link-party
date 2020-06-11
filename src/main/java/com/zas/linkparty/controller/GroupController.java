@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class GroupController {
     }
 
     @GetMapping("/api/groups/add/{groupName}")
-    public Group addGroup(@PathVariable String groupName, Principal principal) {
+    public Group addGroup(@PathVariable String groupName, Principal principal) throws SQLException {
         String username = principal.getName();
         Optional<Group> group = groupRepository.save(username, groupName);
         if (group.isEmpty()) {

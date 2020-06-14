@@ -1,8 +1,7 @@
-package com.zas.linkparty;
+package com.zas.linkparty.jdbcutil;
 
 import org.springframework.dao.CleanupFailureDataAccessException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.datasource.init.ScriptStatementFailedException;
 import org.springframework.jdbc.datasource.lookup.DataSourceLookupFailureException;
 
 import javax.sql.DataSource;

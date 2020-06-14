@@ -1,6 +1,4 @@
-package com.zas.linkparty;
-
-import org.springframework.dao.DataAccessException;
+package com.zas.linkparty.jdbcutil;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

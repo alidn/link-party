@@ -1,4 +1,4 @@
-package com.zas.linkparty;
+package com.zas.linkparty.jdbcutil;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,0 +1,41 @@
+#bookmark-container {
+  font-family: "Product Sans";
+  background-color: #f2f5fa;
+  margin: 10px;
+  border-radius: 5px;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 1px;
+  width: 500px;
+}
+
+#bookmark-container:hover {
+  border-color: #1a73e8;
+  border-width: 1px;
+  border-style: solid;
+}
+
+#bookmark-inner-container {
+  padding: 10px;
+}
+
+#bookmark-title {
+  color: #1a73e8;
+  font-size: 20px;
+  margin: 5px;
+}
+
+#bookmark-title:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#bookmark-url {
+  font-family: "Product Sans Light";
+  color: #5f6368;
+  margin: 5px;
+}
+
+#bookmark-description {
+  margin: 5px;
+}

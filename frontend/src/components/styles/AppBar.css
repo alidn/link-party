@@ -1,0 +1,103 @@
+#search-icon {
+  height: 100%;
+  padding: 0 16px;
+}
+
+#search-input {
+  font-family: "Product Sans Light";
+  font-size: 1.3em;
+  width: 100%;
+  vertical-align: middle;
+  margin: auto;
+  background-color: transparent;
+  border: none;
+  padding: 0 16px;
+  height: 100%;
+}
+
+#account-container {
+  flex-grow: 2;
+}
+
+#search-input:focus {
+  border: none;
+}
+
+#form-container {
+  flex-grow: 10;
+  align-items: center;
+  max-width: 700px;
+}
+
+#search-form {
+  display: flex;
+  flex-direction: row;
+  background: #f1f3f4;
+  border-radius: 8px;
+  vertical-align: middle;
+  margin-right: 50px;
+  border: none;
+  height: 46px;
+}
+
+#search-form:focus {
+  background-color: white;
+}
+
+#appbar-left {
+  flex: 1 0 auto;
+}
+
+#app-name {
+  font-family: "Product Sans";
+  font-size: 22px;
+  color: #5f6368;
+  vertical-align: middle;
+}
+
+svg {
+  fill: #5f6368;
+}
+
+#account {
+  float: right;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+#account:hover {
+  background-color: rgba(60, 64, 67, 0.1);
+}
+
+#container {
+  margin: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+#hamber-menu {
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 4px;
+  padding: 12px;
+  overflow: hidden;
+  vertical-align: middle;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+}
+
+#hamber-menu:hover {
+  background-color: rgba(60, 64, 67, 0.1);
+}
+
+#hamber-menu:active {
+  background-color: rgba(60, 64, 67, 0.3);
+}

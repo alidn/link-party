@@ -26,7 +26,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/*").authenticated()
                 .antMatchers("/api/*/*").authenticated()
                 .antMatchers("/api/*/*/*").authenticated()
-                .antMatchers("/auth/login").authenticated();
+                .antMatchers("/auth/login").authenticated()
+                .and().cors().and().csrf().disable();
     }
 
     @Override

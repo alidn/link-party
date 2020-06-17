@@ -9,7 +9,17 @@ public class User {
     private String password;
     private Date dateJoined;
 
-    public User() { }
+    public User(Long id, String username, String email, String password, Date dateJoined) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.dateJoined = dateJoined;
+    }
+
+    public User(String username) {
+        this.username = username;
+    }
 
     public User(String name, String email, String password) {
         this.username = name;
@@ -58,5 +68,9 @@ public class User {
 
     public void setDateJoined(Date dateJoined) {
         this.dateJoined = dateJoined;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

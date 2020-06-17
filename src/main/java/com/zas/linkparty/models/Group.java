@@ -1,31 +1,38 @@
 package com.zas.linkparty.models;
 
 import java.sql.Date;
-import java.util.ArrayList;
 
 public class Group {
     private Long id;
     private String name;
-    private Date dateCreated;
+    private Long creator;
     private String inviteEditUrl;
     private String inviteViewUrl;
-    private ArrayList<User> usersWhoCanEdit;
-    private ArrayList<User> usersWhoCanOnlyView;
+    private Date dateCreated;
 
-    public Group(Long id, String name, Date dateCreated, String inviteEditUrl, String inviteViewUrl) {
+    public Group() {
+    }
+
+    public Group(Long id, String name, Long creator, String inviteEditUrl, String inviteViewUrl, Date dateCreated) {
         this.id = id;
         this.name = name;
-        this.dateCreated = dateCreated;
+        this.creator = creator;
         this.inviteEditUrl = inviteEditUrl;
         this.inviteViewUrl = inviteViewUrl;
+        this.dateCreated = dateCreated;
     }
 
-    public Long getId() {
-        return id;
+    public Group(String name) {
+        this.name = name;
     }
 
-    public void setId(Long id) {
+    public Group(Long id) {
         this.id = id;
+    }
+
+    public Group(String name, Long creator) {
+        this.name = name;
+        this.creator = creator;
     }
 
     public String getName() {
@@ -36,12 +43,20 @@ public class Group {
         this.name = name;
     }
 
-    public Date getDateCreated() {
-        return dateCreated;
+    public Long getCreator() {
+        return creator;
     }
 
-    public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
+    public void setCreator(Long creator) {
+        this.creator = creator;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getInviteEditUrl() {
@@ -60,19 +75,11 @@ public class Group {
         this.inviteViewUrl = inviteViewUrl;
     }
 
-    public ArrayList<User> getUsersWhoCanEdit() {
-        return usersWhoCanEdit;
+    public Date getDateCreated() {
+        return dateCreated;
     }
 
-    public void setUsersWhoCanEdit(ArrayList<User> usersWhoCanEdit) {
-        this.usersWhoCanEdit = usersWhoCanEdit;
-    }
-
-    public ArrayList<User> getUsersWhoCanOnlyView() {
-        return usersWhoCanOnlyView;
-    }
-
-    public void setUsersWhoCanOnlyView(ArrayList<User> usersWhoCanOnlyView) {
-        this.usersWhoCanOnlyView = usersWhoCanOnlyView;
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
     }
 }

@@ -1,80 +1,50 @@
 package com.zas.linkparty.repositories;
 
 import com.zas.linkparty.models.User;
+import com.zas.linkparty.repositories.queries.UserQueries;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import javax.swing.tree.RowMapper;
 import java.sql.*;
 import java.util.Optional;
 
-public class UserRepository implements UserCrudRepository {
+public class UserRepository implements CrudRepository<User, Long> {
+
+    private JdbcTemplate db;
+    private UserQueries userQueries;
 
     @Autowired
-    private DataSource dataSource;
+    public UserRepository(JdbcTemplate template, UserQueries userQueries) {
+        this.db = template;
+        this.userQueries = userQueries;
+    }
 
-    @Override
-    public <S extends User> S save(S user) {
-        final String sqlSaveUser = "insert into users (username, email, password) " +
-                "values (?, ?, ?);";
-        Connection connection = null;
+    public <S extends User> S findByUsername(String username) {
+        Object[] params = {username};
         try {
-            connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlSaveUser);
-            preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setString(3, user.getPassword());
-            preparedStatement.executeQuery();
-            preparedStatement.close();
-            return user;
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            return db.queryForObject(UserQueries.findByUsername, params, this::mapRowToUser);
+        } catch (Exception e) {
+            return null;
         }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        }
-        throw new IllegalArgumentException("User info not valid");
     }
 
     @Override
-    public <S extends User> Iterable<S> saveAll(Iterable<S> iterable) {
+    public <S extends User> S save(S entity) {
+        return null;
+    }
+
+    @Override
+    public <S extends User> Iterable<S> saveAll(Iterable<S> entities) {
         return null;
     }
 
     @Override
     public Optional<User> findById(Long aLong) {
-        final String sqlFindUserById = "select username, email, password, date_joined from users where user_id = ?;";
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlFindUserById);
-            preparedStatement.setLong(1, aLong);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String username = resultSet.getString(1);
-                String email = resultSet.getString(2);
-                String password = resultSet.getString(3);
-                Date dateJoined = resultSet.getDate(4);
-                User user = new User(username, email, password, dateJoined);
-                preparedStatement.close();
-                return Optional.of(user);
-            } else {
-                preparedStatement.close();
-                return Optional.empty();
-            }
-        } catch (SQLException throwables) {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    throwables.printStackTrace();
-                }
-            }
-            return Optional.empty();
-        }
+        return Optional.empty();
     }
 
     @Override
@@ -88,7 +58,7 @@ public class UserRepository implements UserCrudRepository {
     }
 
     @Override
-    public Iterable<User> findAllById(Iterable<Long> iterable) {
+    public Iterable<User> findAllById(Iterable<Long> longs) {
         return null;
     }
 
@@ -103,12 +73,12 @@ public class UserRepository implements UserCrudRepository {
     }
 
     @Override
-    public void delete(User user) {
+    public void delete(User entity) {
 
     }
 
     @Override
-    public void deleteAll(Iterable<? extends User> iterable) {
+    public void deleteAll(Iterable<? extends User> entities) {
 
     }
 
@@ -117,38 +87,13 @@ public class UserRepository implements UserCrudRepository {
 
     }
 
-    @Override
-    public Optional<User> findByUsername(String aUsername) {
-        System.out.println("Checking user " + dataSource);
-        final String sqlFindUserById = "select username, email, password, date_joined from users where username = ?;";
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlFindUserById);
-            preparedStatement.setString(1, aUsername);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String username = resultSet.getString(1);
-                String email = resultSet.getString(2);
-                String password = resultSet.getString(3);
-                Date dateJoined = resultSet.getDate(4);
-                System.out.println("Here");
-                User user = new User(username, email, password, dateJoined);
-                preparedStatement.close();
-                return Optional.of(user);
-            } else {
-                preparedStatement.close();
-                return Optional.empty();
-            }
-        } catch (SQLException throwables) {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    throwables.printStackTrace();
-                }
-            }
-            return Optional.empty();
-        }
+    private <S extends User> S mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
+        return (S) new User(
+                rs.getLong("user_id"),
+                rs.getString("username"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getDate("date_joined")
+        );
     }
 }

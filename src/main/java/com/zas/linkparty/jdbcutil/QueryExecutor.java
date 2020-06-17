@@ -2,6 +2,7 @@ package com.zas.linkparty.jdbcutil;
 
 import org.springframework.dao.CleanupFailureDataAccessException;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.lookup.DataSourceLookupFailureException;
 
 import javax.sql.DataSource;
@@ -42,6 +43,18 @@ public class QueryExecutor<T> {
 
         this.dataSource = dataSource;
         this.query = query;
+    }
+
+    public void setParameters(Object[] params, int[] paramTypes) {
+        if (params.length != paramTypes.length) {
+            throw new IllegalArgumentException("A type needs to be specified for each parameter");
+        }
+
+        this.parameterSetter = preparedStatement -> {
+            for (int i = 0; i < params.length; i++) {
+
+            }
+        };
     }
 
     public Optional<T> executeAndGetResult() throws DataAccessException {

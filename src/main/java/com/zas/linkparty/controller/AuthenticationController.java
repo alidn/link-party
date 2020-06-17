@@ -32,11 +32,11 @@ public class AuthenticationController {
 
     @GetMapping("/api/user")
     public User user(Principal principal) {
-        Optional<User> user = userRepository.findByUsername(principal.getName());
-        if (user.isEmpty()) {
+        User user = userRepository.findByUsername(principal.getName());
+        if (user == null) {
             return null;
         } else {
-            return user.get();
+            return user;
         }
     }
 }

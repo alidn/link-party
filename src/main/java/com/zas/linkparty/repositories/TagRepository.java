@@ -5,21 +5,21 @@ import com.zas.linkparty.repositories.queries.TagQueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Types;
-import java.util.List;
 import java.util.Optional;
 
 public class TagRepository implements CrudRepository<Tag, Long> {
-    private JdbcTemplate template;
+    private final JdbcTemplate db;
 
     @Autowired
     public TagRepository(JdbcTemplate jdbcTemplate) {
-        this.template = jdbcTemplate;
+        this.db = jdbcTemplate;
     }
 
-    public <S extends Tag> S save(S entity, Long groupId) {
+    public <S extends Tag> S saveToBookmark(S entity, Long bookmarkId) {
         if (!existsByName(entity.getName())) {
             entity = save(entity);
         } else {
@@ -28,23 +28,44 @@ public class TagRepository implements CrudRepository<Tag, Long> {
         if (entity == null) {
             return null;
         }
-        Object[] params = {entity.getId(), groupId};
+        Object[] params = {entity.getId(), bookmarkId};
         int[] argTypes = {Types.INTEGER, Types.INTEGER};
-        int rowsUpdated = template.update(TagQueries.insertIntoBookmarkTags, params, argTypes);
+        int rowsUpdated = db.update(TagQueries.insertIntoBookmarkTags, params, argTypes);
         return rowsUpdated > 0 ? entity : null;
     }
 
     public boolean existsByName(String name) {
-        return false;
+        Object[] params = {name};
+        try {
+            Tag tag = db.queryForObject(TagQueries.existsByName, params, this::mapRowToTag);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public <S extends Tag> S getByName(String name) {
-        return null;
+        Object[] params = {name};
+        try {
+            return db.queryForObject(TagQueries.existsByName, params, this::mapRowToTag);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public <S extends Tag> Iterable<S> getTagsOfBookmark(Long bookmarkId) {
+        Object[] params = {bookmarkId};
+        return db.query(TagQueries.tagsOfBookmark, params, this::mapRowToTag);
     }
 
     @Override
     public <S extends Tag> S save(S entity) {
-        return null;
+        Object[] params = {entity.getName()};
+        try {
+            return db.queryForObject(TagQueries.saveTag, params, this::mapRowToTag);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -95,5 +116,9 @@ public class TagRepository implements CrudRepository<Tag, Long> {
     @Override
     public void deleteAll() {
 
+    }
+
+    private <S extends Tag> S mapRowToTag(ResultSet rs, int rowNum) throws SQLException {
+        return (S) new Tag(rs.getLong("tag_id"), rs.getString("name"));
     }
 }

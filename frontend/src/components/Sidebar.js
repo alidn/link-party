@@ -4,8 +4,11 @@ import "./styles/Sidebar.css";
 import { motion } from "framer-motion";
 
 const variants = {
-  open: { opacity: 1, x: 0, width: "260px" },
-  closed: { opacity: 0, x: "-100%", width: 0 },
+  open: {
+    x: 0,
+    width: "260px",
+  },
+  closed: { x: "-300px", zIndex: 10, width: 0 },
 };
 
 export default function Sidebar({ isOpen = true }) {

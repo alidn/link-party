@@ -1,0 +1,16 @@
+#notification-container {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  margin-left: -100px;
+  /* height: 100%; */
+  z-index: 2;
+}
+
+#notification {
+  height: 50px;
+  width: 200px;
+  background-color: turquoise;
+  margin-bottom: 10px;
+  z-index: 2;
+}

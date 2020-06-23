@@ -1,6 +1,8 @@
 import React from "react";
 import "./styles/BookmarkEditModal.css";
 
+import { useNotification } from "./notification";
+
 export default function BookmarkEditModal({
   setEditing,
   hidden,
@@ -8,6 +10,8 @@ export default function BookmarkEditModal({
   description,
   url,
 }) {
+  let addNotif = useNotification();
+
   const save = () => {};
   const cancel = () => {
     setEditing(false);
@@ -43,7 +47,12 @@ export default function BookmarkEditModal({
         <span className="bookmark-time">2 hours ago</span>
       </div>
 
-      <button className="bookmark-edit-modal-save">Save</button>
+      <button
+        onClick={() => addNotif("success", 1000)}
+        className="bookmark-edit-modal-save"
+      >
+        Save
+      </button>
       <button onClick={cancel} className="bookmark-edit-modal-cancel">
         Cancel
       </button>

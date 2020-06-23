@@ -9,6 +9,18 @@ const types = {
 
 let notificationCreator;
 
+export function useNotification() {
+  let [addNotif, setAddNotif] = useState(() => {});
+
+  useEffect(() => {
+    setTimeout(() => {
+      setAddNotif(getNotificationCreator);
+    }, 0);
+  }, []);
+
+  return addNotif;
+}
+
 export function getNotificationCreator() {
   return notificationCreator;
 }

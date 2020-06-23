@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./styles/Bookmark.css";
-import { getNotificationCreator } from "./notification";
+import { getNotificationCreator, useNotification } from "./notification";
 
 export default function Bookmark(props) {
   const {
@@ -12,13 +12,6 @@ export default function Bookmark(props) {
     dateCreated,
   } = props.data[props.index];
   let [isEditing, setEditing] = useState(false);
-  let [addNotif, setAddNotif] = useState(() => {});
-
-  useEffect(() => {
-    setTimeout(() => {
-      setAddNotif(getNotificationCreator);
-    }, 0);
-  }, []);
 
   const edit = () => {
     changeEditing(true);
@@ -26,7 +19,6 @@ export default function Bookmark(props) {
 
   const save = () => {
     setEditing((v) => !v);
-    addNotif("success", 2000);
   };
 
   const cancel = () => {

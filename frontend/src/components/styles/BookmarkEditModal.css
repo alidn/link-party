@@ -1,7 +1,7 @@
 .bookmark-edit-modal {
   border-radius: 10px;
   z-index: 100;
-  box-shadow: 0 55px 183px rgba(0, 0, 0, 0.47);
+  box-shadow: 0 0px 183px rgba(0, 0, 0, 0.47);
   position: fixed;
   width: 500px;
   /* height: 500px; */

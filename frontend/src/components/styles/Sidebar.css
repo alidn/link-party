@@ -24,6 +24,10 @@
   border-radius: 0 25px 25px 0;
 }
 
+.tab:active {
+  transform: scale(0.9);
+}
+
 a,
 a:active,
 a:focus {

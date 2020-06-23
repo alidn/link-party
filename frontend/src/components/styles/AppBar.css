@@ -4,7 +4,7 @@
 }
 
 #search-input {
-  font-family: "Product Sans Light";
+  font-family: "Google Sans";
   font-size: 1.3em;
   width: 100%;
   vertical-align: middle;
@@ -49,14 +49,14 @@
 }
 
 #app-name {
-  font-family: "Product Sans";
+  font-family: "Google Sans";
   font-size: 22px;
-  color: #5f6368;
+  color: #6b7c93;
   vertical-align: middle;
 }
 
 svg {
-  fill: #5f6368;
+  fill: #6b7c93;
 }
 
 #account {

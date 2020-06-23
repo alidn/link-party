@@ -15,7 +15,11 @@ export default function Sidebar({ isOpen = true }) {
   let location = useLocation();
 
   return (
-    <motion.nav animate={isOpen ? "open" : "closed"} variants={variants}>
+    <motion.nav
+      id="nav-container"
+      animate={isOpen ? "open" : "closed"}
+      variants={variants}
+    >
       <div className="container">
         <Tab
           location={location}

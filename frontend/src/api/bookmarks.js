@@ -6,7 +6,18 @@ async function fetchAllBookmarksWithLimit(from, to) {
     method: "GET",
     credentials: "include",
   });
-  return await data.json();
+  let bookmark = {
+    url: "www.linkmine.ca",
+    title: "LinkMine",
+    description: "A bookmarking website",
+    creator: "you",
+  };
+  let list = [];
+  for (let i = from + 1; i < to; i++) {
+    list.push({ ...bookmark, ...{ id: i } });
+  }
+  return list;
+  // return await data.json();
 }
 
 export function getBookmarksOneByOne(from, to) {

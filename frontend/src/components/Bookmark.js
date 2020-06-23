@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import "./styles/Bookmark.css";
 import { getNotificationCreator } from "./notification";
 
-const variants = {
-  normal: { opacity: 0, display: "none", scale: 0 },
-  editing: { opacity: 1, display: "block", scale: 1 },
-};
-
-const containerVariants = {
-  normal: { scale: 0.91, margin: "10px", marginLeft: "10px" },
-  editing: { scale: 1.1, margin: "20px", marginLeft: "50px" },
-};
-
-export default function Bookmark({ id, url, title, description, dateCreated }) {
+export default function Bookmark(props) {
+  const {
+    changeEditing,
+    id,
+    url,
+    title,
+    description,
+    dateCreated,
+  } = props.data[props.index];
   let [isEditing, setEditing] = useState(false);
   let [addNotif, setAddNotif] = useState(() => {});
 
@@ -23,91 +20,53 @@ export default function Bookmark({ id, url, title, description, dateCreated }) {
     }, 0);
   }, []);
 
+  const edit = () => {
+    changeEditing(true);
+  };
+
   const save = () => {
     setEditing((v) => !v);
     addNotif("success", 2000);
   };
 
-  const edit = () => {
-    setEditing((v) => !v);
-  };
-
   const cancel = () => {
     setEditing((v) => !v);
+    changeEditing(false);
   };
 
   return (
-    <motion.div
-      className={isEditing ? "shadow" : ""}
-      initial={{ scale: 0.8 }}
-      animate={isEditing ? "editing" : "normal"}
-      variants={containerVariants}
-      transition={{ ease: "backOut", duration: 0.4 }}
-      id="bookmark-container"
-    >
-      <div id="bookmark-inner-container">
+    <div style={props.style} className={"bookmark-container"}>
+      <div className="bookmark-inner-container">
         <div>
-          <div hidden={!isEditing}>
-            <span onClick={save} className="bookmark-action" id="bookmark-save">
-              save{" | "}
-            </span>
-            <span
-              onClick={cancel}
-              id="bookmark-cancel"
-              className="bookmark-action"
-            >
-              cancel
-            </span>
-          </div>
-
-          <div hidden={isEditing}>
-            <span id="bookmark-title">{title}</span>
-            <span id="bookmark-edit" onClick={edit} className="bookmark-action">
-              edit |{" "}
-            </span>
-            <span id="bookmark-delete" className="bookmark-action">
-              delete
-            </span>
-          </div>
-
-          <motion.div
-            id="title-input-container"
-            animate={isEditing ? "editing" : "normal"}
-            variants={variants}
-            transition={{ duration: 0.2 }}
-          >
-            <label id="title-input-label">title</label>
-            <motion.input
-              id="title-input"
-              defaultValue={title}
-              placeholder="title"
-            />
-          </motion.div>
+          <Title isEditing={isEditing} title={title} setEditing={setEditing} />
+          <span className="bookmark-edit bookmark-action" onClick={edit}>
+            edit |{" "}
+          </span>
+          <span className="bookmark-delete bookmark-action">delete</span>
         </div>
 
-        <div id="bookmark-url">{url}</div>
-        <div className="flex-column">
-          <div hidden={isEditing} id="bookmark-description">
-            {description}
-          </div>
-          <motion.div
-            animate={isEditing ? "editing" : "normal"}
-            variants={variants}
-            transition={{ duration: 0.2 }}
-            id="description-textarea-container"
-          >
-            <label id="description-textarea-label">description</label>
-            <motion.textarea
-              id="description-textarea"
-              placeholder="Link Description"
-              rows={5}
-              defaultValue={description}
-            />
-          </motion.div>
-        </div>
-
-        <span id="bookmark-metadata">By you | 2 hours ago</span>
+        <div className="bookmark-url">{url}</div>
+        <Description description={description} isEditing={isEditing} />
+        <span className="bookmark-creator">By you</span>
+        <span className="bookmark-group">In personal bookmarks</span>
+        <span className="bookmark-time">2 hours ago</span>
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+function Title({ title, isEditing, setEditing }) {
+  return (
+    <React.Fragment>
+      <span className="bookmark-title">{title}</span>
+    </React.Fragment>
+  );
+}
+
+function Description({ isEditing, description }) {
+  return (
+    <div className="flex-column">
+      <div className="bookmark-description">{description}</div>
+    </div>
   );
 }

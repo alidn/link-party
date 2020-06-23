@@ -13,16 +13,11 @@ export function getNotificationCreator() {
   return notificationCreator;
 }
 
-const variants = {
-  hidden: { opacity: 0, y: -100 },
-  visible: { opacity: 1, y: 0 },
-};
-
 export function Notifications() {
   let [list, setList] = useState([]);
   let id = 0;
 
-  let showNotification = (type, timeoutMs) => {
+  const showNotification = (type, timeoutMs) => {
     id += 1;
     setList((prevList) =>
       prevList.concat({

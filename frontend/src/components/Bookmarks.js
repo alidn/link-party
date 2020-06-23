@@ -1,38 +1,40 @@
-import React, { Suspense, useState, useEffect } from "react";
+import React, { Suspense, useState, forwardRef } from "react";
+import { FixedSizeList } from "react-window";
+
 import { getAllBookmarksDataWithLimit } from "../api/bookmarks";
 import Bookmark from "./Bookmark";
 import "./styles/Bookmarks.css";
 
 const topBookmarks = getAllBookmarksDataWithLimit(0, 20);
-const otherBookmarks = getAllBookmarksDataWithLimit(20, 200);
 
-export default function Bookmarks() {
-  let [o, setO] = useState({ read: () => [] });
-
-  useEffect(() => {
-    setTimeout(() => {
-      setO(otherBookmarks);
-    }, 0);
-  }, []);
-
+export default function Bookmarks({ setEditing, setLowOpacity }) {
   return (
     <div id="bookmark-list">
-      <BookmarkList bookmarksReader={topBookmarks} />
-      <Suspense fallback={<h1>Loading...</h1>}>
-        <BookmarkList bookmarksReader={o} />
+      <Suspense fallback={<h1>Loading</h1>}>
+        <BookmarkListWindow
+          setEditing={setEditing}
+          bookmarksReader={topBookmarks}
+        />
       </Suspense>
     </div>
   );
 }
 
-function BookmarkList({ bookmarksReader }) {
+function BookmarkListWindow({ setEditing, bookmarksReader }) {
   let bookmarks = bookmarksReader.read();
 
   return (
-    <React.Fragment>
-      {bookmarks.map((bookmark) => (
-        <Bookmark key={bookmark.id} {...bookmark} />
-      ))}
-    </React.Fragment>
+    <FixedSizeList
+      setEditing={setEditing}
+      itemData={bookmarks.map((bookmark) =>
+        Object.assign(bookmark, { changeEditing: setEditing })
+      )}
+      height={900}
+      width={700}
+      itemSize={120}
+      itemCount={20000}
+    >
+      {Bookmark}
+    </FixedSizeList>
   );
 }

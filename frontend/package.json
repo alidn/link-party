@@ -12,9 +12,13 @@
     "react-dom": "0.0.0-experimental-33c3af284",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "react-window": "^1.8.5"
+    "react-window": "^1.8.5",
+    "tailwindcss": "^1.4.6"
   },
   "scripts": {
+    "build:tailwind": "tailwindcss build src/tailwind.css -o src/tailwind.generated.css",
+    "prestart": "npm run build:tailwind",
+    "prebuild": "npm run build:tailwind",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

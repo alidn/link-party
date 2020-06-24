@@ -10,19 +10,15 @@ const types = {
 let notificationCreator;
 
 export function useNotification() {
-  let [addNotif, setAddNotif] = useState(() => {});
+  let [addNotif, setAddNotif] = useState(notificationCreator);
 
   useEffect(() => {
     setTimeout(() => {
-      setAddNotif(getNotificationCreator);
-    }, 0);
+      setAddNotif(notificationCreator);
+    }, 1000);
   }, []);
 
   return addNotif;
-}
-
-export function getNotificationCreator() {
-  return notificationCreator;
 }
 
 export function Notifications() {
@@ -46,7 +42,7 @@ export function Notifications() {
   };
 
   useEffect(() => {
-    notificationCreator = showNotification;
+    notificationCreator = () => showNotification;
   }, []);
 
   return (

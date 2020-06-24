@@ -20,13 +20,23 @@ async function fetchAllBookmarksWithLimit(from, to) {
   // return await data.json();
 }
 
-export function getBookmarksOneByOne(from, to) {
-  let result = [];
-  for (let i = from; i < to; i++) {
-    let bookmarkPromise = fetchAllBookmarksWithLimit(i, i + 1);
-    result.push(wrapPromise(bookmarkPromise));
+async function getBookmarksOfGroupAsync(groupId) {
+  let bookmark = {
+    url: "www.linkmine.ca " + groupId,
+    title: "LinkMine",
+    description: "A bookmarking website",
+    creator: "you",
+  };
+  let list = [];
+  for (let i = 0; i < 200; i++) {
+    list.push({ ...bookmark, ...{ id: i } });
   }
-  return result;
+  return list;
+}
+
+export function getBookmarksOfGroup(groupId) {
+  let bookmarksPromise = getBookmarksOfGroupAsync(groupId);
+  return wrapPromise(bookmarksPromise);
 }
 
 export function getAllBookmarksDataWithLimit(from, to) {

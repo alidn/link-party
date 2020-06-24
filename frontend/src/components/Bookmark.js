@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import "./styles/Bookmark.css";
-import { getNotificationCreator, useNotification } from "./notification";
+import React, { useState, useContext } from "react";
+import { ThemeContext } from "../App";
 
 export default function Bookmark(props) {
   const {
@@ -12,6 +11,7 @@ export default function Bookmark(props) {
     dateCreated,
   } = props.data[props.index];
   let [isEditing, setEditing] = useState(false);
+  let themeContext = useContext(ThemeContext);
 
   const edit = () => {
     changeEditing(true);
@@ -27,14 +27,25 @@ export default function Bookmark(props) {
   };
 
   return (
-    <div style={props.style} className={"bookmark-container"}>
-      <div className="bookmark-inner-container">
+    <div
+      className={`${
+        themeContext.dark ? "bg-gray-800" : "bg-gray-100"
+      } p-5 rounded-lg`}
+      style={props.style}
+    >
+      <div className="">
         <div>
-          <Title isEditing={isEditing} title={title} setEditing={setEditing} />
-          <span className="bookmark-edit bookmark-action" onClick={edit}>
-            edit |{" "}
+          <span
+            className={`${
+              themeContext.dark ? "text-gray-500" : "text-blue-600"
+            } text-2xl`}
+          >
+            {title}{" "}
           </span>
-          <span className="bookmark-delete bookmark-action">delete</span>
+          <span className="bookmark-edit bookmark-action" onClick={edit}>
+            edit |
+          </span>
+          <span className="bookmark-delete bookmark-action"> delete</span>
         </div>
 
         <div className="bookmark-url">{url}</div>
@@ -48,11 +59,7 @@ export default function Bookmark(props) {
 }
 
 function Title({ title, isEditing, setEditing }) {
-  return (
-    <React.Fragment>
-      <span className="bookmark-title">{title}</span>
-    </React.Fragment>
-  );
+  return <React.Fragment></React.Fragment>;
 }
 
 function Description({ isEditing, description }) {

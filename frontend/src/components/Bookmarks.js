@@ -1,17 +1,23 @@
-import React, { Suspense, useState, forwardRef } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { FixedSizeList } from "react-window";
+import { useWindowSize } from "../hooks";
 
-import { getAllBookmarksDataWithLimit } from "../api/bookmarks";
+import { getBookmarksOfGroup } from "../api/bookmarks";
 import Bookmark from "./Bookmark";
-import "./styles/Bookmarks.css";
 
-const topBookmarks = getAllBookmarksDataWithLimit(0, 20);
+export default function Bookmarks({ selectedGroup, setEditing }) {
+  let [topBookmarks, setTopBookmarks] = useState(
+    getBookmarksOfGroup(selectedGroup)
+  );
+  useEffect(() => {
+    setTopBookmarks(getBookmarksOfGroup(selectedGroup));
+  }, [selectedGroup]);
 
-export default function Bookmarks({ setEditing, setLowOpacity }) {
   return (
-    <div id="bookmark-list">
+    <div>
       <Suspense fallback={<h1>Loading</h1>}>
         <BookmarkListWindow
+          selectedGroup={selectedGroup}
           setEditing={setEditing}
           bookmarksReader={topBookmarks}
         />
@@ -22,17 +28,20 @@ export default function Bookmarks({ setEditing, setLowOpacity }) {
 
 function BookmarkListWindow({ setEditing, bookmarksReader }) {
   let bookmarks = bookmarksReader.read();
+  const [_width, height] = useWindowSize();
 
   return (
     <FixedSizeList
       setEditing={setEditing}
       itemData={bookmarks.map((bookmark) =>
-        Object.assign(bookmark, { changeEditing: setEditing })
+        Object.assign(bookmark, {
+          changeEditing: setEditing,
+        })
       )}
-      height={900}
+      height={(height * 85) / 100}
       width={700}
       itemSize={120}
-      itemCount={20000}
+      itemCount={bookmarks.length}
     >
       {Bookmark}
     </FixedSizeList>

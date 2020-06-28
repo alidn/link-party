@@ -1,26 +1,14 @@
 package com.zas.linkparty.repositories;
 
-import ch.qos.logback.core.joran.action.AppenderRefAction;
-import com.zas.linkparty.jdbcutil.ParameterSetter;
-import com.zas.linkparty.jdbcutil.QueryExecutor;
-import com.zas.linkparty.jdbcutil.ResultExtractor;
-import com.zas.linkparty.models.Bookmark;
 import com.zas.linkparty.models.Group;
 import com.zas.linkparty.models.User;
 import com.zas.linkparty.repositories.queries.GroupQueries;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.servlet.tags.Param;
 
-import javax.sql.DataSource;
-import java.awt.print.Book;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class GroupRepository implements CrudRepository<Group, Long> {
     private Long authenticatedUserId = null;

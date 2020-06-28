@@ -3,12 +3,9 @@ package com.zas.linkparty.repositories;
 import com.zas.linkparty.models.User;
 import com.zas.linkparty.repositories.queries.UserQueries;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
-import javax.swing.tree.RowMapper;
 import java.sql.*;
 import java.util.Optional;
 
@@ -23,10 +20,25 @@ public class UserRepository implements CrudRepository<User, Long> {
         this.userQueries = userQueries;
     }
 
+    public Iterable<User> findUsersOfGroup(Long groupId) {
+        Object[] params = {groupId};
+        return db.query(userQueries.findUsersOfGroup, params, this::mapRowToUser);
+    }
+
+    public boolean isMemberOfGroup(Long groupId, String username) {
+        Object[] params = {groupId, username};
+        try {
+            User _user = db.queryForObject(userQueries.isMemberOfGroup, params, this::mapRowToUser);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public <S extends User> S findByUsername(String username) {
         Object[] params = {username};
         try {
-            return db.queryForObject(UserQueries.findByUsername, params, this::mapRowToUser);
+            return db.queryForObject(userQueries.findByUsername, params, this::mapRowToUser);
         } catch (Exception e) {
             return null;
         }
@@ -43,8 +55,14 @@ public class UserRepository implements CrudRepository<User, Long> {
     }
 
     @Override
-    public Optional<User> findById(Long aLong) {
-        return Optional.empty();
+    public Optional<User> findById(Long userId) {
+        Object[] params = {userId};
+        try {
+            User user = db.queryForObject(userQueries.findById, params, this::mapRowToUser);
+            return Optional.of(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override

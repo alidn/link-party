@@ -12,9 +12,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
@@ -26,8 +25,8 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
     private BookmarkQueries bookmarkQueries;
 
     @Autowired
-    public BookmarkRepository(JdbcTemplate template, UserRepository userRepository,
-                              GroupRepository groupRepository, TagRepository tagRepository, BookmarkQueries bookmarkQueries) {
+    public BookmarkRepository(JdbcTemplate template, UserRepository userRepository, GroupRepository groupRepository,
+            TagRepository tagRepository, BookmarkQueries bookmarkQueries) {
         this.db = template;
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
@@ -53,13 +52,16 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
         if (!groupRepository.existsById(entity.getGroup())) {
             return null;
         }
-        Object[] params = {entity.getUrl(), entity.getTitle(), entity.getDescription(), authenticatedUserId, entity.getGroup()};
-        S bookmark = db.queryForObject(BookmarkQueries.save,
-                params,
-                this::mapRowToBookmark);
-        if (bookmark == null) return null;
-        for (Tag tag: entity.getTags()) {
-            bookmark.addTag(tagRepository.saveToBookmark(tag, entity.getGroup()));
+        Object[] params = { entity.getUrl(), entity.getTitle(), entity.getDescription(), authenticatedUserId,
+                entity.getGroup() };
+        S bookmark = db.queryForObject(BookmarkQueries.save, params, this::mapRowToBookmark);
+        if (bookmark == null)
+            return null;
+        if (entity.getTags() == null) {
+            return bookmark;
+        }
+        for (Tag tag : entity.getTags()) {
+            bookmark.addTag(tagRepository.saveToBookmark(tag, entity.getId()));
         }
         return bookmark;
     }
@@ -71,12 +73,25 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
 
     @Override
     public Optional<Bookmark> findById(Long bookmarkId) {
-        Object[] params = {bookmarkId};
+        Object[] params = { bookmarkId };
         Bookmark bookmark = db.queryForObject(BookmarkQueries.findById, params, this::mapRowToBookmark);
-        if (bookmark == null) return Optional.empty();
+        if (bookmark == null)
+            return Optional.empty();
         Iterable<Tag> tags = tagRepository.getTagsOfBookmark(bookmarkId);
         bookmark.setTags(tags);
         return Optional.of(bookmark);
+    }
+
+    public Iterable<Bookmark> findBookmarksOfGroup(Long groupId) {
+        Object[] params = { groupId };
+        return db.query(bookmarkQueries.findBookmarksOfGroup, params, this::mapRowToBookmark);
+    }
+
+    public Iterable<Bookmark> findBookmarksWithTag(String username, String tagName) {
+        Object[] params = {tagName};
+        List<Bookmark> bookmarks = db.query(bookmarkQueries.findBookmarksWithTag, params, this::mapRowToBookmark);
+        // TODO only show the bookmarks that the user can see.
+        return bookmarks;
     }
 
     @Override
@@ -120,7 +135,8 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
     }
 
     private <S extends Bookmark> S mapRowToBookmark(ResultSet rs, int rowNum) throws SQLException {
-        return (S) new Bookmark(rs.getLong("bookmark_id"), rs.getString("url"),
-                rs.getString("title"), rs.getString("description"), rs.getDate("date_created"), new ArrayList<>(), rs.getLong("creator"), rs.getLong("group_id"));
+        return (S) new Bookmark(rs.getLong("bookmark_id"), rs.getString("url"), rs.getString("title"),
+                rs.getString("description"), rs.getDate("date_created"), new ArrayList<>(), rs.getLong("creator"),
+                rs.getLong("group_id"));
     }
 }

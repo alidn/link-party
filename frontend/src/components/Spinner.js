@@ -1,5 +1,9 @@
 import React from "react";
 
 export default function Spinner() {
-  return <p>Loading...</p>;
+  return (
+    <div className="progress">
+      <div className="indeterminate" />
+    </div>
+  );
 }

@@ -5,8 +5,11 @@ import Spinner from "./components/Spinner.js";
 import AppBar from "./components/AppBar.js";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { Notifications } from "./components/notification";
-import BookmarkEditModal from "./components/BookmarkEditModal";
 import Groups from "./components/Groups";
+
+const BookmarkEditModal = React.lazy(() =>
+  import("./components/BookmarkEditModal")
+);
 
 export const ThemeContext = React.createContext({ dark: false });
 
@@ -35,17 +38,21 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ dark: darkTheme }}>
+      {/* <Spinner /> */}
       <div className={`${darkTheme ? "bg-gray-700" : ""}`}>
         <Router>
           <button onClick={() => setDarkTheme((v) => !v)}>dark</button>
           <Notifications />
-          <BookmarkEditModal
-            setEditing={log}
-            hidden={!isEditing}
-            title="LinkMine"
-            description="A long description"
-            url="www.linkmin.ca"
-          />
+          <Suspense fallback={<Spinner />}>
+            <BookmarkEditModal
+              setEditing={log}
+              hidden={!isEditing}
+              title="LinkMine"
+              description="A long description"
+              url="www.linkmin.ca"
+            />
+          </Suspense>
+
           <div>
             <AppBar toggleSidebar={toggleSidebar} />
             <div id="main" className="flex flex-row">

@@ -4,6 +4,7 @@ import { getAllGroups } from "../api/groups";
 import { useWindowSize } from "../hooks";
 import { useHistory, useLocation } from "react-router-dom";
 import { ThemeContext } from "../App";
+import { fetchUsernameByIdAsync } from "../api/user";
 
 const groups = getAllGroups();
 
@@ -25,6 +26,7 @@ export default function Groups({ changeGroup }) {
 function Group({ index, data, style }) {
   let themeContext = useContext(ThemeContext);
   let history = useHistory();
+  let [creatorName, setCreatorName] = useState("");
 
   const {
     name,
@@ -36,24 +38,32 @@ function Group({ index, data, style }) {
     selectedGroup,
   } = data[index];
 
+  useEffect(() => {
+    fetchUsernameByIdAsync(creator).then((v) => setCreatorName(v));
+  }, []);
+
   const handleClick = () => {
-    setSelectedGroup(selectedGroup, index);
-    history.push("/" + index);
+    setSelectedGroup(selectedGroup, id);
+    history.push("/" + id);
   };
 
   return (
     <div
       onClick={handleClick}
-      className={`cursor-pointer rounded-lg p-5 border  ${
-        selectedGroup === index
+      className={`mt-2 cursor-pointer rounded-lg p-5 border ${
+        selectedGroup === id
           ? ` border-transparent ${
-              themeContext.dark ? "bg-gray-900" : "bg-indigo-100"
+              themeContext.dark ? "bg-gray-900" : " bg-indigo-100"
             }`
           : ` ${
               themeContext.dark ? "hover:bg-gray-600" : "hover:bg-gray-100"
             }  border-transparent`
-      }`}
-      style={style}
+      }  `}
+      style={{
+        ...style,
+        top: style.top + 5,
+        height: style.height - 5,
+      }}
     >
       <span>
         <span
@@ -61,7 +71,7 @@ function Group({ index, data, style }) {
             themeContext.dark ? "text-gray-300" : "text-gray-700"
           } text-sm`}
         >
-          {creator} /{" "}
+          {creatorName} /{" "}
         </span>
         <span
           className={`${

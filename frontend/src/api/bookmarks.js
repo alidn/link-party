@@ -1,4 +1,16 @@
-import { wrapPromise, wrapPromiseWithFakeDelay } from "./utils";
+import {wrapPromise} from "./utils";
+
+export async function saveBookmark({url, title, description, group}) {
+  let path = "/api/bookmarks/create";
+  return await fetch(path, {
+    method: "POST",
+    credentials: "include",
+    headers: new Headers({
+      'Content-Type': "application/json"
+    }),
+    body: JSON.stringify({url, title, description, group})
+  });
+}
 
 async function fetchAllBookmarksWithLimit(from, to) {
   let url = "/api/bookmarks/" + from + "/" + to;
@@ -21,6 +33,13 @@ async function fetchAllBookmarksWithLimit(from, to) {
 }
 
 async function getBookmarksOfGroupAsync(groupId) {
+  let path = `/api/groups/${groupId}/bookmarks`;
+  let data = await fetch(path, {
+    credentials: "include",
+    method: "GET"
+  });
+  return await data.json();
+
   let bookmark = {
     url: "www.linkmine.ca " + groupId,
     title: "LinkMine",

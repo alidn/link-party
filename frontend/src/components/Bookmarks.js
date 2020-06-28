@@ -4,6 +4,8 @@ import { useWindowSize } from "../hooks";
 
 import { getBookmarksOfGroup } from "../api/bookmarks";
 import Bookmark from "./Bookmark";
+import Spinner from "./Spinner";
+import AddBookmarkSkeleton from "./AddBookmarkSkeleton";
 
 export default function Bookmarks({ selectedGroup, setEditing }) {
   let [topBookmarks, setTopBookmarks] = useState(
@@ -15,7 +17,8 @@ export default function Bookmarks({ selectedGroup, setEditing }) {
 
   return (
     <div>
-      <Suspense fallback={<h1>Loading</h1>}>
+      <Suspense fallback={<Spinner />}>
+        <AddBookmarkSkeleton group={selectedGroup} />
         <BookmarkListWindow
           selectedGroup={selectedGroup}
           setEditing={setEditing}
@@ -37,10 +40,10 @@ function BookmarkListWindow({ setEditing, bookmarksReader }) {
         Object.assign(bookmark, {
           changeEditing: setEditing,
         })
-      )}
+      ).reverse()}
       height={(height * 85) / 100}
       width={700}
-      itemSize={120}
+      itemSize={160}
       itemCount={bookmarks.length}
     >
       {Bookmark}

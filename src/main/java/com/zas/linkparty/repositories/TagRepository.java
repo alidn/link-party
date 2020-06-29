@@ -64,6 +64,7 @@ public class TagRepository implements CrudRepository<Tag, Long> {
         try {
             return db.queryForObject(TagQueries.saveTag, params, this::mapRowToTag);
         } catch (Exception e) {
+            System.out.println("Couldn't save the tag");
             return null;
         }
     }

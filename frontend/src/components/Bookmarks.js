@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect, useMemo, useState } from "react";
-import { FixedSizeList } from "react-window";
+import React, { Suspense, useEffect, useState } from "react";
+import { VariableSizeList } from "react-window";
 import { useWindowSize } from "../hooks";
 
 import { getBookmarksOfGroup } from "../api/bookmarks";
@@ -7,46 +7,50 @@ import Bookmark from "./Bookmark";
 import Spinner from "./Spinner";
 import AddBookmarkSkeleton from "./AddBookmarkSkeleton";
 
-export default function Bookmarks({ selectedGroup, setEditing }) {
-  let [topBookmarks, setTopBookmarks] = useState(
-    getBookmarksOfGroup(selectedGroup)
-  );
-  useEffect(() => {
-    setTopBookmarks(getBookmarksOfGroup(selectedGroup));
-  }, [selectedGroup]);
+export default function Bookmarks({ selectedGroup }) {
+  let topBookmarks = useBookmarks(selectedGroup);
 
   return (
     <div>
       <Suspense fallback={<Spinner />}>
         <AddBookmarkSkeleton group={selectedGroup} />
-        <BookmarkListWindow
-          selectedGroup={selectedGroup}
-          setEditing={setEditing}
-          bookmarksReader={topBookmarks}
-        />
+        <BookmarkListWindow bookmarksReader={topBookmarks} />
       </Suspense>
     </div>
   );
 }
 
-function BookmarkListWindow({ setEditing, bookmarksReader }) {
+function BookmarkListWindow({ bookmarksReader }) {
   let bookmarks = bookmarksReader.read();
-  const [_width, height] = useWindowSize();
+  const [, height] = useWindowSize();
+
+  const getItemSize = (index) => {
+    let descriptionLines = Math.floor(bookmarks[index].description.length / 84);
+    let titleLines = Math.floor(bookmarks[index].title.length / 40);
+    return 210 + descriptionLines * 20 + titleLines * 30;
+  };
 
   return (
-    <FixedSizeList
-      setEditing={setEditing}
-      itemData={bookmarks.map((bookmark) =>
-        Object.assign(bookmark, {
-          changeEditing: setEditing,
-        })
-      ).reverse()}
+    <VariableSizeList
+      itemData={bookmarks.map((bookmark) => Object.assign(bookmark)).reverse()}
       height={(height * 85) / 100}
       width={700}
-      itemSize={160}
+      itemSize={getItemSize}
       itemCount={bookmarks.length}
     >
       {Bookmark}
-    </FixedSizeList>
+    </VariableSizeList>
   );
+}
+
+function useBookmarks(groupId) {
+  let [topBookmarks, setTopBookmarks] = useState({
+    read: () => [],
+  });
+
+  useEffect(() => {
+    setTopBookmarks(getBookmarksOfGroup(groupId));
+  }, [groupId]);
+
+  return topBookmarks;
 }

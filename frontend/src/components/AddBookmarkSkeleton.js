@@ -1,16 +1,19 @@
 import React, { useState, useCallback, useRef } from "react";
 import { saveBookmark } from "../api/bookmarks";
 import SpinnerCircle from "./SpinnerCircle";
+import { motion } from "framer-motion";
+import { useNotification } from "./notification";
 
 let CloseIcon = React.lazy(() => import("./icons/close"));
 
-export default function AddBookmarkSkeleton({ group }) {
+export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
   let [isAdding, setAdding] = useState(false);
   let [url, setUrl] = useState("");
   let [description, setDescription] = useState("");
   let [title, setTitle] = useState("");
   let [loading, setLoading] = useState(false);
   let [tags, setTags] = useState([""]);
+  let showNotification = useNotification();
 
   const handleTagDelete = (index) => {
     setTags((prevTags) => prevTags.filter((_value, idx) => idx !== index));
@@ -26,11 +29,18 @@ export default function AddBookmarkSkeleton({ group }) {
   };
 
   const save = () => {
+    if (url === "" || title === "") {
+      showNotification("Url or title cannot be empty", "error", 2000);
+      return;
+    }
     setLoading(true);
-    saveBookmark({ url, description, group, title }).then((v) => {
-      setLoading(false);
-      setAdding(false);
-    });
+    saveBookmark({ url, description, group, title, tags: tags.slice(1) }).then(
+      (v) => {
+        setLoading(false);
+        setAdding(false);
+        // handleAddBookmark({ url, description, group, title });
+      }
+    );
   };
 
   const cancel = () => setAdding((v) => !v);
@@ -40,18 +50,30 @@ export default function AddBookmarkSkeleton({ group }) {
       node.focus();
     }
   }, []);
+  const variants = {
+    hidden: { scale: 0.7 },
+    visible: { scale: 1 },
+  };
 
   return isAdding ? (
-    <div className={`bg-gray-100 rounded-lg pt-5 pb-5 mb-3`}>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={variants}
+      transition={{ duration: 0.1 }}
+      className={`bg-gray-100 rounded-lg pt-5 pb-5 mb-3`}
+    >
       <input
         onChange={(e) => setTitle(e.target.value)}
         ref={titleInputRef}
+        style={{width: "80%"}}
         className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 px-4 block appearance-none leading-normal"
         type="text"
         placeholder="title"
       />
       <input
         onChange={(e) => setUrl(e.target.value)}
+        style={{width: "60%"}}
         className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 px-4 block appearance-none leading-normal"
         type="text"
         placeholder="url"
@@ -76,6 +98,7 @@ export default function AddBookmarkSkeleton({ group }) {
       <textarea
         onChange={(e) => setDescription(e.target.value)}
         rows={4}
+        style={{width: "80%"}}
         className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 w-3/4 px-4 block appearance-none leading-normal"
         placeholder="description"
       />
@@ -87,7 +110,7 @@ export default function AddBookmarkSkeleton({ group }) {
         {loading ? (
           <div className={`flex flex-row`}>
             Save
-            <SpinnerCircle /> : ""
+            <SpinnerCircle />
           </div>
         ) : (
           "Save"
@@ -100,7 +123,7 @@ export default function AddBookmarkSkeleton({ group }) {
       >
         Cancel
       </button>
-    </div>
+    </motion.div>
   ) : (
     <div
       onClick={() => setAdding(true)}
@@ -114,11 +137,12 @@ export default function AddBookmarkSkeleton({ group }) {
 export function Tag({ tagName, handleDelete, index }) {
   return (
     <span
-      hidden={index === 0}
-      style={{ borderRadius: "2em" }}
-      className={`ml-2 border text-sm border-indigo-400 py-1 px-3`}
+      style={{ borderRadius: "2em", maxWidth: "50px" }}
+      className={`m-2 ${
+        index === 0 ? "hidden" : ""
+      } text-gray-700 border inline text-sm border-indigo-400 py-1 px-3`}
     >
-      {tagName}
+      <span className={`hover:underline cursor-pointer`}>{tagName}</span>
       <span onClick={() => handleDelete(index)} className={`cursor-pointer`}>
         <CloseIcon width={18} height={18} />
       </span>

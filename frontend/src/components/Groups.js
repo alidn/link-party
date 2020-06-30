@@ -5,12 +5,13 @@ import { useWindowSize } from "../hooks";
 import { useHistory, useLocation } from "react-router-dom";
 import { ThemeContext } from "../App";
 import { fetchUsernameByIdAsync } from "../api/user";
+import SpinnerCircle from "./SpinnerCircle";
 
 const groups = getAllGroups();
 
 export default function Groups({ changeGroup }) {
   return (
-    <Suspense callback={"loading"}>
+    <Suspense fallback={<SpinnerCircle />}>
       <div className="ml-10 mr-10">
         <GroupListWindow
           changeGroup={(v) => {
@@ -97,6 +98,12 @@ function GroupListWindow({ groupsReader, changeGroup }) {
   const [_width, height] = useWindowSize();
   let [selectedGroup, setSelectedGroup] = useState(0);
   let [groupsWithProps, setGroupsWithProps] = useState(groups);
+
+  useEffect(() => {
+    if (selectedGroup === 0) {
+      setSelected(-1, groups[0].id);
+    }
+  }, [selectedGroup]);
 
   useEffect(() => {
     setGroupsWithProps(

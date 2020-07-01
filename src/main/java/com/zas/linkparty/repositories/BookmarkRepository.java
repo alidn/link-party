@@ -34,6 +34,12 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
         this.bookmarkQueries = bookmarkQueries;
     }
 
+    public boolean deleteBookmark(Long bookmarkId) {
+        Object[] params = {bookmarkId, bookmarkId};
+        int rows = db.update(bookmarkQueries.deleteBookmark, params);
+        return rows > 0;
+    }
+
     public <S extends Bookmark> S save(S entity, String authenticatedUsername) {
         if (authenticatedUserId != null) {
             return save(entity);
@@ -139,4 +145,5 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
                 rs.getString("description"), rs.getDate("date_created"), new ArrayList<>(), rs.getLong("creator"),
                 rs.getLong("group_id"));
     }
+
 }

@@ -7,7 +7,7 @@ import java.security.Principal;
 
 @RestController
 public class HelloController {
-    @GetMapping("/api")
+    @GetMapping("/hello")
     public String sayHelloPermitAll() {
         return "Hello world";
     }

@@ -5,24 +5,21 @@ import com.zas.linkparty.repositories.BookmarkRepository;
 import com.zas.linkparty.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.security.Principal;
+import java.util.Optional;
 
 @RestController
 public class BookmarkController {
     private BookmarkRepository bookmarkRepository;
-    private UserRepository UserRepository;
+    private UserRepository userRepository;
 
     @Autowired
     public BookmarkController(BookmarkRepository bookmarkRepository, UserRepository userRepository) {
         this.bookmarkRepository = bookmarkRepository;
-        this.UserRepository = userRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/api/bookmarks")
@@ -39,7 +36,7 @@ public class BookmarkController {
 
     @GetMapping("/api/groups/{groupId}/bookmarks")
     public Iterable<Bookmark> bookmarksOfGroup(Principal principal, @PathVariable Long groupId) {
-        if (!UserRepository.isMemberOfGroup(groupId, principal.getName())) {
+        if (!userRepository.isMemberOfGroup(groupId, principal.getName())) {
             return new ArrayList<Bookmark>();
         }
         return bookmarkRepository.findBookmarksOfGroup(groupId);
@@ -48,5 +45,17 @@ public class BookmarkController {
     @GetMapping("/api/tags/{tagName}/bookmarks")
     public Iterable<Bookmark> bookmarksWithTag(@PathVariable String tagName, Principal principal) {
         return bookmarkRepository.findBookmarksWithTag(principal.getName(), tagName);
+    }
+
+    @DeleteMapping("/api/bookmarks/{bookmarkId}/delete")
+    public boolean deleteBookmark(@PathVariable Long bookmarkId, Principal principal) {
+        Optional<Bookmark> bookmark = bookmarkRepository.findById(bookmarkId);
+        if (bookmark.isEmpty()) {
+            return false;
+        }
+        if (!userRepository.isMemberOfGroup(bookmark.get().getGroup(), principal.getName())) {
+            return false;
+        }
+        return bookmarkRepository.deleteBookmark(bookmarkId);
     }
 }

@@ -17,4 +17,6 @@ public class BookmarkQueries {
                         + "inner join " + "bookmark_tag on bookmark_tag.tag_id= " + "tags.tag_id inner "
                         + "join bookmarks " + "on bookmark_tag.bookmark_id= "
                         + "bookmark_tag.bookmark_id where tags.name='Hello world'";
+
+        public static String deleteBookmark = "delete from bookmark_tag where bookmark_id = ?; delete from bookmarks where bookmark_id = ?";
 }

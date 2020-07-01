@@ -24,30 +24,4 @@ export function wrapPromise(promise) {
   };
 }
 
-export function wrapPromiseWithFakeDelay(promise, delayMs) {
-  let status = "pending";
-  let result;
-  let suspender = promise.then(
-    (r) => {
-      setTimeout(() => {
-        status = "success";
-        result = r;
-      }, delayMs)
-    },
-    (e) => {
-      status = "error";
-      result = e;
-    }
-  );
-  return {
-    read() {
-      if (status === "pending") {
-        throw suspender;
-      } else if (status === "error") {
-        throw result;
-      } else if (status === "success") {
-        return result;
-      }
-    },
-  };
-}
+export function readableStreamToString(readableStream) {}

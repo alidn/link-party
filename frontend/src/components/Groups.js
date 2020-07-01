@@ -40,7 +40,7 @@ function Group({ index, data, style }) {
   } = data[index];
 
   useEffect(() => {
-    fetchUsernameByIdAsync(creator).then((v) => setCreatorName(v));
+    // fetchUsernameByIdAsync(creator).then((v) => setCreatorName(v));
   }, []);
 
   const handleClick = () => {

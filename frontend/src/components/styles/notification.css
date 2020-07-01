@@ -8,9 +8,5 @@
 }
 
 #notification {
-  height: 50px;
-  width: 200px;
-  background-color: turquoise;
-  margin-bottom: 10px;
   z-index: 2;
 }

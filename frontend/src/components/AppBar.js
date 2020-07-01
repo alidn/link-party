@@ -1,10 +1,9 @@
 import React from "react";
-import "./styles/AppBar.css";
 
 export default function AppBar({ toggleSidebar }) {
   return (
-    <div>
-      <div id="container">
+    <div className="flex flex-row">
+      <div className="flex flex-row">
         <div id="appbar-left">
           <div id="hamber-menu" onClick={() => toggleSidebar()}>
             <svg
@@ -36,7 +35,7 @@ export default function AppBar({ toggleSidebar }) {
           9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
               />
             </svg>
-            <input id="search-input" placeholder="Search" />
+            {/* <input id="search-input" placeholder="Search" /> */}
           </form>
         </div>
         <div id="account-container">

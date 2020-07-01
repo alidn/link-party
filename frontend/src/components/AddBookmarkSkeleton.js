@@ -60,20 +60,20 @@ export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
       initial="hidden"
       animate="visible"
       variants={variants}
-      transition={{ duration: 0.1 }}
+      transition={{ duration: 0.05 }}
       className={`bg-gray-100 rounded-lg pt-5 pb-5 mb-3`}
     >
       <input
         onChange={(e) => setTitle(e.target.value)}
         ref={titleInputRef}
-        style={{width: "80%"}}
+        style={{ width: "80%" }}
         className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 px-4 block appearance-none leading-normal"
         type="text"
         placeholder="title"
       />
       <input
         onChange={(e) => setUrl(e.target.value)}
-        style={{width: "60%"}}
+        style={{ width: "60%" }}
         className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 px-4 block appearance-none leading-normal"
         type="text"
         placeholder="url"
@@ -98,13 +98,13 @@ export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
       <textarea
         onChange={(e) => setDescription(e.target.value)}
         rows={4}
-        style={{width: "80%"}}
+        style={{ width: "80%" }}
         className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 w-3/4 px-4 block appearance-none leading-normal"
         placeholder="description"
       />
       <button
         style={{ color: "#1a73e8", minWidth: "4rem", maxWidth: "8rem" }}
-        className={`m-3 p-1 text-lg rounded text-gray-700 hover:bg-gray-300 hover:text-blue-800 focus:outline-none focus:bg-gray-400 text-center`}
+        className={`m-3 p-1 text-lg rounded text-gray-700 hover:bg-indigo-100 hover:text-blue-800 focus:outline-none focus:bg-indigo-200 text-center`}
         onClick={save}
       >
         {loading ? (
@@ -118,7 +118,7 @@ export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
       </button>
       <button
         style={{ color: "#1a73e8" }}
-        className={`m-3 p-1 focus:bg-gray-400 text-gray-700 hover:bg-gray-300 m-3 p-1 text-lg w-16 rounded focus:outline-none`}
+        className={`m-3 p-1 focus:bg-indigo-200 text-gray-700 hover:bg-indigo-100 m-3 p-1 text-lg w-16 rounded focus:outline-none`}
         onClick={cancel}
       >
         Cancel
@@ -134,7 +134,7 @@ export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
   );
 }
 
-export function Tag({ tagName, handleDelete, index }) {
+export function Tag({ tagName, handleDelete, index, tagId }) {
   return (
     <span
       style={{ borderRadius: "2em", maxWidth: "50px" }}
@@ -143,7 +143,10 @@ export function Tag({ tagName, handleDelete, index }) {
       } text-gray-700 border inline text-sm border-indigo-400 py-1 px-3`}
     >
       <span className={`hover:underline cursor-pointer`}>{tagName}</span>
-      <span onClick={() => handleDelete(index)} className={`cursor-pointer`}>
+      <span
+        onClick={() => handleDelete(index, tagId)}
+        className={`cursor-pointer`}
+      >
         <CloseIcon width={18} height={18} />
       </span>
     </span>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./styles/BookmarkEditModal.css";
 
 import { useNotification } from "./notification";
@@ -11,6 +11,9 @@ export default function BookmarkEditModal({
   url,
 }) {
   let addNotif = useNotification();
+
+  useEffect(() => {
+  }, [addNotif]);
 
   const save = () => {};
   const cancel = () => {

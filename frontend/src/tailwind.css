@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 .progress {
-  position: absolute;
+  position: fixed;
   height: 4px;
   top: -8px;
   display: block;
-  width: 100%;
+  width: 100vw;
   background-color: #667eea;
   border-radius: 2px;
   background-clip: padding-box;

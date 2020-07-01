@@ -8,7 +8,9 @@ public class TagQueries {
 
     public static String saveTag = "insert into tags (name) values (?) returning tag_id, name;";
 
-    public static String tagsOfBookmark = "select tags.tag_id, name from tags " +
+    public static String tagsOfBookmark = "select distinct tags.tag_id, name from tags " +
             "inner join bookmark_tag on bookmark_tag.tag_id = tags.tag_id " +
             "where bookmark_tag.bookmark_id = ?;";
+
+    public static String deleteTag = "delete from bookmark_tag where bookmark_id = ? and tag_id = ?";
 }

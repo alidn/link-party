@@ -19,6 +19,12 @@ public class TagRepository implements CrudRepository<Tag, Long> {
         this.db = jdbcTemplate;
     }
 
+    public boolean deleteTag(Long bookmarkId, Long tagId) {
+        Object[] params = {bookmarkId, tagId};
+        int rows = db.update(TagQueries.deleteTag, params);
+        return rows > 0;
+    }
+
     public <S extends Tag> S saveToBookmark(S entity, Long bookmarkId) {
         if (!existsByName(entity.getName())) {
             entity = save(entity);
@@ -64,7 +70,7 @@ public class TagRepository implements CrudRepository<Tag, Long> {
         try {
             return db.queryForObject(TagQueries.saveTag, params, this::mapRowToTag);
         } catch (Exception e) {
-            System.out.println("Couldn't save the tag");
+            System.out.println("Couldn't save the tag: " + entity.getName());
             return null;
         }
     }

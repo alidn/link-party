@@ -2,23 +2,29 @@ import React, { Suspense, useState, useEffect, useContext } from "react";
 import { FixedSizeList } from "react-window";
 import { getAllGroups } from "../api/groups";
 import { useWindowSize } from "../hooks";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { ThemeContext } from "../App";
-import { fetchUsernameByIdAsync } from "../api/user";
 import SpinnerCircle from "./SpinnerCircle";
+import { atom } from "recoil/dist";
+import { useRecoilState } from "recoil";
 
 const groups = getAllGroups();
 
-export default function Groups({ changeGroup }) {
+export const reload = atom({
+  key: "group-id",
+  default: false,
+});
+
+export const currentGroupIDState = atom({
+  key: "group-id",
+  default: 5,
+});
+
+export default function Groups() {
   return (
     <Suspense fallback={<SpinnerCircle />}>
       <div className="ml-10 mr-10">
-        <GroupListWindow
-          changeGroup={(v) => {
-            changeGroup(v);
-          }}
-          groupsReader={groups}
-        />
+        <GroupListWindow groupsReader={groups} />
       </div>
     </Suspense>
   );
@@ -28,23 +34,16 @@ function Group({ index, data, style }) {
   let themeContext = useContext(ThemeContext);
   let history = useHistory();
   let [creatorName, setCreatorName] = useState("");
+  let [groupID, setGroupID] = useRecoilState(currentGroupIDState);
 
-  const {
-    name,
-    id,
-    membersCount,
-    creator,
-    setSelectedGroup,
-    isSelected,
-    selectedGroup,
-  } = data[index];
+  const { name, id, membersCount, creator } = data[index];
 
   useEffect(() => {
     // fetchUsernameByIdAsync(creator).then((v) => setCreatorName(v));
   }, []);
 
   const handleClick = () => {
-    setSelectedGroup(selectedGroup, id);
+    setGroupID(id);
     history.push("/" + id);
   };
 
@@ -52,7 +51,7 @@ function Group({ index, data, style }) {
     <div
       onClick={handleClick}
       className={`mt-2 cursor-pointer rounded-lg p-5 border ${
-        selectedGroup === id
+        groupID === id
           ? ` border-transparent ${
               themeContext.dark ? "bg-gray-900" : " bg-indigo-100"
             }`
@@ -95,36 +94,11 @@ function Group({ index, data, style }) {
 
 function GroupListWindow({ groupsReader, changeGroup }) {
   let groups = groupsReader.read();
-  const [_width, height] = useWindowSize();
-  let [selectedGroup, setSelectedGroup] = useState(0);
-  let [groupsWithProps, setGroupsWithProps] = useState(groups);
-
-  useEffect(() => {
-    if (selectedGroup === 0) {
-      setSelected(-1, groups[0].id);
-    }
-  }, [selectedGroup]);
-
-  useEffect(() => {
-    setGroupsWithProps(
-      groups.map((group, index) =>
-        Object.assign(group, {
-          setSelectedGroup: setSelected,
-          isSelected: index === selectedGroup,
-          selectedGroup: selectedGroup,
-        })
-      )
-    );
-  }, [groups, selectedGroup]);
-
-  const setSelected = (from, to) => {
-    setSelectedGroup(to);
-    changeGroup(to);
-  };
+  const [, height] = useWindowSize();
 
   return (
     <FixedSizeList
-      itemData={groupsWithProps}
+      itemData={groups}
       height={(height * 85) / 100}
       width={300}
       itemSize={100}

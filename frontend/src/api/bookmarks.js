@@ -20,7 +20,7 @@ export async function deleteBookmarkAsync(bookmarkId) {
   });
 }
 
-async function getBookmarksOfGroupAsync(groupId) {
+export async function getBookmarksOfGroupAsync(groupId) {
   let path = `/api/groups/${groupId}/bookmarks`;
   let data = await fetch(path, {
     credentials: "include",

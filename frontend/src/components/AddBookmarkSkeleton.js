@@ -1,12 +1,16 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { saveBookmark } from "../api/bookmarks";
 import SpinnerCircle from "./SpinnerCircle";
 import { motion } from "framer-motion";
 import { useNotification } from "./notification";
+import { useRecoilValue } from "recoil/dist";
+import { currentGroupIDState } from "./Groups";
 
 let CloseIcon = React.lazy(() => import("./icons/close"));
 
-export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
+export default function AddBookmarkSkeleton() {
+  const group = useRecoilValue(currentGroupIDState);
+
   let [isAdding, setAdding] = useState(false);
   let [url, setUrl] = useState("");
   let [description, setDescription] = useState("");
@@ -35,7 +39,7 @@ export default function AddBookmarkSkeleton({ group, handleAddBookmark }) {
     }
     setLoading(true);
     saveBookmark({ url, description, group, title, tags: tags.slice(1) }).then(
-      (v) => {
+      () => {
         setLoading(false);
         setAdding(false);
         // handleAddBookmark({ url, description, group, title });

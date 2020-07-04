@@ -1,28 +1,39 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense } from "react";
 import { VariableSizeList } from "react-window";
 import { useWindowSize } from "../hooks";
-import { motion, AnimatePresence } from "framer-motion";
-
-import { getBookmarksOfGroup } from "../api/bookmarks";
+import { getBookmarksOfGroupAsync } from "../api/bookmarks";
 import Bookmark from "./Bookmark";
 import Spinner from "./Spinner";
 import AddBookmarkSkeleton from "./AddBookmarkSkeleton";
+import { selector, selectorFamily, useRecoilValue } from "recoil/dist";
+import { currentGroupIDState } from "./Groups";
 
-export default function Bookmarks({ selectedGroup }) {
-  let topBookmarks = useBookmarks(selectedGroup);
+const bookmarksQuery = selectorFamily({
+  key: "BookmarksQuery",
+  get: (bookmarkID) => async () => {
+    return await getBookmarksOfGroupAsync(bookmarkID);
+  },
+});
+
+const currentBookmarksQuery = selector({
+  key: "CurrentBookmarksQuery",
+  get: ({ get }) => get(bookmarksQuery(get(currentGroupIDState))),
+});
+
+export default function Bookmarks() {
+  const bookmarks = useRecoilValue(currentBookmarksQuery);
 
   return (
     <div>
       <Suspense fallback={<Spinner />}>
-        <AddBookmarkSkeleton group={selectedGroup} />
-        <BookmarkListWindow bookmarksReader={topBookmarks} />
+        <AddBookmarkSkeleton />
+        <BookmarkListWindow bookmarks={bookmarks} />
       </Suspense>
     </div>
   );
 }
 
-function BookmarkListWindow({ bookmarksReader }) {
-  let bookmarks = bookmarksReader.read();
+function BookmarkListWindow({ bookmarks }) {
   const [, height] = useWindowSize();
 
   const getItemSize = (index) => {
@@ -51,16 +62,4 @@ function BookmarkListWindow({ bookmarksReader }) {
       {Bookmark}
     </VariableSizeList>
   );
-}
-
-function useBookmarks(groupId) {
-  let [topBookmarks, setTopBookmarks] = useState({
-    read: () => [],
-  });
-
-  useEffect(() => {
-    setTopBookmarks(getBookmarksOfGroup(groupId));
-  }, [groupId]);
-
-  return topBookmarks;
 }

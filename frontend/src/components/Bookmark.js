@@ -3,22 +3,17 @@ import React, {
   useContext,
   useCallback,
   Suspense,
-  useMemo,
   useEffect,
 } from "react";
 import { ThemeContext } from "../App";
-import {
-  addTagAsync,
-  deleteTagAsync,
-  fetchTags,
-  fetchTagsAsync,
-} from "../api/tags";
+import { addTagAsync, deleteTagAsync, fetchTagsAsync } from "../api/tags";
 import SpinnerCircle from "./SpinnerCircle";
 import { Tag } from "./AddBookmarkSkeleton";
 import { useNotification } from "./notification";
 import { motion } from "framer-motion";
 import { addModal } from "./ModalProvider";
 import { deleteBookmarkAsync } from "../api/bookmarks";
+import { selectorFamily, useRecoilValue } from "recoil/dist";
 
 let EditIcon = React.lazy(() => import("./icons/edit"));
 let DeleteIcon = React.lazy(() => import("./icons/delete"));
@@ -168,12 +163,14 @@ export default function Bookmark(props) {
 
         <div className="bookmark-url text-gray-600 mb-3">{url}</div>
         <Description description={description} isEditing={isEditing} />
-        <Tags
-          handleDelete={handleDeleteTag}
-          bookmarkId={id}
-          handleAddTag={handleAddTag}
-          addedTag={addedTag}
-        />
+        <Suspense fallback={<SpinnerCircle />}>
+          <Tags
+            handleDelete={handleDeleteTag}
+            bookmarkId={id}
+            handleAddTag={handleAddTag}
+            addedTag={addedTag}
+          />
+        </Suspense>
         <span className="bookmark-creator">By you </span>
         <span className="bookmark-time">2 hours ago</span>
       </div>
@@ -181,52 +178,28 @@ export default function Bookmark(props) {
   );
 }
 
-function Tags({ bookmarkId, handleAddTag, addedTag, handleDelete }) {
-  let [tags, setTags] = useState([]);
-  let [loading, setLoading] = useState(false);
-  useEffect(() => {
-    setLoading(true);
-    fetchTagsAsync(bookmarkId).then((v) => {
-      setTags(v);
-      setLoading(false);
-    });
-  }, [bookmarkId]);
+const tagsQuery = selectorFamily({
+  key: "TagQuery",
+  get: (bookmarkID) => async () => {
+    return await fetchTagsAsync(bookmarkID);
+  },
+});
 
-  useEffect(() => {
-    if (addedTag) {
-      setTags((prevTags) => prevTags.concat([addedTag]));
-    }
-  }, [addedTag]);
-
-  const removeTagFromListAndHandleDelete = (index, tagId) => {
-    let deleted = handleDelete(index, tagId);
-    if (deleted)
-      setTags((prevTags) => prevTags.filter((tag) => tag.id !== tagId));
-    console.log(tags);
-    console.log(tags.filter((tag) => tag.id !== tagId));
-  };
+function Tags({ bookmarkId }) {
+  const tags = useRecoilValue(tagsQuery(bookmarkId));
 
   return (
-    <Suspense fallback={<SpinnerCircle />}>
-      <div className="mt-1 mb-1">
-        <span>Tags: </span>
-        <TagSkeleton handleAddTag={handleAddTag} />
-        {loading ? <SpinnerCircle /> : ""}
-        {tags ? (
-          tags.map((tag, index) => (
-            <Tag
-              handleDelete={removeTagFromListAndHandleDelete}
-              key={tag.id}
-              index={index}
-              tagName={tag.name}
-              tagId={tag.id}
-            />
-          ))
-        ) : (
-          <span>Loading...</span>
-        )}
-      </div>
-    </Suspense>
+    <div className="mt-1 mb-1">
+      <span>Tags: </span>
+      <TagSkeleton />
+      {tags ? (
+        tags.map((tag, index) => (
+          <Tag key={tag.id} index={index} tagName={tag.name} tagId={tag.id} />
+        ))
+      ) : (
+        <span>Loading...</span>
+      )}
+    </div>
   );
 }
 
@@ -269,7 +242,7 @@ function TagSkeleton({ handleAddTag }) {
   );
 }
 
-function Description({ isEditing, description }) {
+function Description({ description }) {
   return (
     <div className={`flex-column mb-3`}>
       <div className="bookmark-description text-gray-800">{description}</div>

@@ -1,33 +1,34 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useMemo } from "react";
 import { VariableSizeList } from "react-window";
 import { useWindowSize } from "../hooks";
-import { getBookmarksOfGroupAsync } from "../api/bookmarks";
+import {
+  getBookmarksOfGroup,
+  getBookmarksOfGroupAsync,
+} from "../api/bookmarks";
 import Bookmark from "./Bookmark";
 import Spinner from "./Spinner";
-import AddBookmarkSkeleton from "./AddBookmarkSkeleton";
+
 import { selector, selectorFamily, useRecoilValue } from "recoil/dist";
-import { currentGroupIDState } from "./Groups";
+import {
+  bookmarksQuery,
+  currentBookmarksState,
+  currentGroupIDState,
+} from "./Groups";
 
-const bookmarksQuery = selectorFamily({
-  key: "BookmarksQuery",
-  get: (bookmarkID) => async () => {
-    return await getBookmarksOfGroupAsync(bookmarkID);
-  },
-});
+// let reader = getBookmarksOfGroup(4);
 
-const currentBookmarksQuery = selector({
-  key: "CurrentBookmarksQuery",
-  get: ({ get }) => get(bookmarksQuery(get(currentGroupIDState))),
-});
+const AddBookmarkSkeleton = React.lazy(() => import("./AddBookmarkSkeleton"));
 
-export default function Bookmarks() {
-  const bookmarks = useRecoilValue(currentBookmarksQuery);
+export default function Bookmarks({ id, reader }) {
+  const bookmarks = useRecoilValue(currentBookmarksState);
+  let currentGroupID = useRecoilValue(currentGroupIDState);
+  const bookmarks1 = reader.read();
 
   return (
     <div>
       <Suspense fallback={<Spinner />}>
         <AddBookmarkSkeleton />
-        <BookmarkListWindow bookmarks={bookmarks} />
+        <BookmarkListWindow bookmarks={bookmarks1} />
       </Suspense>
     </div>
   );

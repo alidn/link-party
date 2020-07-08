@@ -4,7 +4,7 @@
 
 .progress {
   position: fixed;
-  height: 4px;
+  height: 6px;
   top: -8px;
   display: block;
   width: 100vw;

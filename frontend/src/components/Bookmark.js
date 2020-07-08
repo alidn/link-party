@@ -25,8 +25,6 @@ export default function Bookmark(props) {
   let themeContext = useContext(ThemeContext);
   const showNotification = useNotification();
 
-  useEffect(() => {}, [props.style]);
-
   const handleAddTag = (tagName) => {
     addTagAsync(tagName, id).then(() => {
       setAddedTag({

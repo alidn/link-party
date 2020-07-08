@@ -13,6 +13,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-window": "^1.8.5",
+    "recoil": "0.0.10",
     "tailwindcss": "^1.4.6"
   },
   "scripts": {

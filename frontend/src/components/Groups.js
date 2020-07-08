@@ -1,18 +1,38 @@
-import React, { Suspense, useState, useEffect, useContext } from "react";
+import React, {
+  Suspense,
+  useState,
+  unstable_useTransition as useTransition,
+  useContext,
+  useEffect,
+} from "react";
 import { FixedSizeList } from "react-window";
 import { getAllGroups } from "../api/groups";
 import { useWindowSize } from "../hooks";
 import { useHistory } from "react-router-dom";
 import { ThemeContext } from "../App";
 import SpinnerCircle from "./SpinnerCircle";
-import { atom } from "recoil/dist";
+import {
+  atom,
+  selector,
+  selectorFamily,
+  useRecoilCallback,
+  useSetRecoilState,
+} from "recoil/dist";
 import { useRecoilState } from "recoil";
+import {
+  getBookmarksOfGroup,
+  getBookmarksOfGroupAsync,
+} from "../api/bookmarks";
+import Spinner from "./Spinner";
+import { createCache } from "react/unstable-cache";
+import { wrapPromise } from "../api/utils";
+import { fetch } from "./FetcherProvider";
 
 const groups = getAllGroups();
 
-export const reload = atom({
-  key: "group-id",
-  default: false,
+export const currentBookmarksState = atom({
+  key: "currentBookmarksState",
+  default: [],
 });
 
 export const currentGroupIDState = atom({
@@ -30,20 +50,31 @@ export default function Groups() {
   );
 }
 
+export const bookmarksQuery = selectorFamily({
+  key: "BookmarksQuery",
+  get: (groupID) => async () => {
+    return await getBookmarksOfGroupAsync(groupID);
+  },
+});
+
+const APIResources = createCache((path) => {});
+
 function Group({ index, data, style }) {
   let themeContext = useContext(ThemeContext);
   let history = useHistory();
   let [creatorName, setCreatorName] = useState("");
   let [groupID, setGroupID] = useRecoilState(currentGroupIDState);
-
+  let setBookmarks = useSetRecoilState(currentBookmarksState);
+  const [startTransition, isPending] = useTransition({
+    // Wait 10 seconds before fallback
+    timeoutMs: 10000,
+  });
+  let [showChanging, setShowChanging] = useState(false);
   const { name, id, membersCount, creator } = data[index];
-
-  useEffect(() => {
-    // fetchUsernameByIdAsync(creator).then((v) => setCreatorName(v));
-  }, []);
+  let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
 
   const handleClick = () => {
-    setGroupID(id);
+    setCurrentGroupID(id);
     history.push("/" + id);
   };
 
@@ -88,6 +119,7 @@ function Group({ index, data, style }) {
       >
         <span>{membersCount} members</span>
       </div>
+      {showChanging && <Spinner />}
     </div>
   );
 }

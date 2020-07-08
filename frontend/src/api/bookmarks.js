@@ -34,6 +34,7 @@ export async function getBookmarksOfGroupAsync(groupId) {
 }
 
 export function getBookmarksOfGroup(groupId) {
+  console.log("Fetching...");
   let bookmarksPromise = getBookmarksOfGroupAsync(groupId);
   return wrapPromise(bookmarksPromise);
 }

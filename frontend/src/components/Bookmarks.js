@@ -1,27 +1,12 @@
-import React, { Suspense, useMemo } from "react";
-import { VariableSizeList } from "react-window";
-import { useWindowSize } from "../hooks";
-import {
-  getBookmarksOfGroup,
-  getBookmarksOfGroupAsync,
-} from "../api/bookmarks";
-import Bookmark from "./Bookmark";
-import Spinner from "./Spinner";
+import React, {Suspense} from 'react';
+import {VariableSizeList} from 'react-window';
+import {useWindowSize} from '../hooks';
+import Bookmark from './Bookmark';
+import Spinner from './Spinner';
 
-import { selector, selectorFamily, useRecoilValue } from "recoil/dist";
-import {
-  bookmarksQuery,
-  currentBookmarksState,
-  currentGroupIDState,
-} from "./Groups";
+const AddBookmarkSkeleton = React.lazy(() => import('./AddBookmarkSkeleton'));
 
-// let reader = getBookmarksOfGroup(4);
-
-const AddBookmarkSkeleton = React.lazy(() => import("./AddBookmarkSkeleton"));
-
-export default function Bookmarks({ id, reader }) {
-  const bookmarks = useRecoilValue(currentBookmarksState);
-  let currentGroupID = useRecoilValue(currentGroupIDState);
+export default function Bookmarks({reader}) {
   const bookmarks1 = reader.read();
 
   return (
@@ -34,7 +19,7 @@ export default function Bookmarks({ id, reader }) {
   );
 }
 
-function BookmarkListWindow({ bookmarks }) {
+function BookmarkListWindow({bookmarks}) {
   const [, height] = useWindowSize();
 
   const getItemSize = (index) => {
@@ -58,8 +43,7 @@ function BookmarkListWindow({ bookmarks }) {
       height={(height * 85) / 100}
       width={700}
       itemSize={getItemSize}
-      itemCount={bookmarks.length}
-    >
+      itemCount={bookmarks.length}>
       {Bookmark}
     </VariableSizeList>
   );

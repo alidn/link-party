@@ -1,26 +1,19 @@
-import React, {
-  useState,
-  useContext,
-  useCallback,
-  Suspense,
-  useEffect,
-} from "react";
-import { ThemeContext } from "../App";
-import { addTagAsync, deleteTagAsync, fetchTagsAsync } from "../api/tags";
-import SpinnerCircle from "./SpinnerCircle";
-import { Tag } from "./AddBookmarkSkeleton";
-import { useNotification } from "./notification";
-import { motion } from "framer-motion";
-import { addModal } from "./ModalProvider";
-import { deleteBookmarkAsync } from "../api/bookmarks";
-import { selectorFamily, useRecoilValue } from "recoil/dist";
+import React, {useState, useContext, useCallback, Suspense} from 'react';
+import {ThemeContext} from '../App';
+import {addTagAsync, deleteTagAsync, fetchTagsAsync} from '../api/tags';
+import SpinnerCircle from './SpinnerCircle';
+import {Tag} from './AddBookmarkSkeleton';
+import {useNotification} from './notification';
+import {addModal} from './ModalProvider';
+import {deleteBookmarkAsync} from '../api/bookmarks';
+import {selectorFamily, useRecoilValue} from 'recoil/dist';
 
-let EditIcon = React.lazy(() => import("./icons/edit"));
-let DeleteIcon = React.lazy(() => import("./icons/delete"));
+let EditIcon = React.lazy(() => import('./icons/edit'));
+let DeleteIcon = React.lazy(() => import('./icons/delete'));
 
 export default function Bookmark(props) {
-  const { id, url, title, description, dateCreated } = props.data[props.index];
-  let [isEditing, setEditing] = useState(false);
+  const {id, url, title, description} = props.data[props.index];
+  let [isEditing] = useState(false);
   let [addedTag, setAddedTag] = useState(null);
   let themeContext = useContext(ThemeContext);
   const showNotification = useNotification();
@@ -41,9 +34,9 @@ export default function Bookmark(props) {
         <div>
           <span className={`ml-3 text-gray-800`}>Title: </span>
           <input
-            placeholder={"title"}
+            placeholder={'title'}
             defaultValue={title}
-            style={{ color: "#1a73e8" }}
+            style={{color: '#1a73e8'}}
             className={`bg-white w-3/4 m-3 text-lg focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
           />
         </div>
@@ -51,7 +44,7 @@ export default function Bookmark(props) {
           <span className={`ml-3 text-gray-800`}>Url: </span>
           <input
             className={`bg-white text-gray-700 w-3/4 m-3 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
-            placeholder={"url"}
+            placeholder={'url'}
             defaultValue={url}
           />
         </div>
@@ -59,9 +52,9 @@ export default function Bookmark(props) {
         <div>
           <span className={`ml-3 text-gray-800`}>Description: </span>
           <textarea
-            placeholder={"description"}
+            placeholder={'description'}
             defaultValue={description}
-            style={{ width: "90%" }}
+            style={{width: '90%'}}
             rows={4}
             className={`bg-white text-gray-700  m-3 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
           />
@@ -76,14 +69,14 @@ export default function Bookmark(props) {
       .then((resp) => resp.body)
       .then((body) => {
         const reader = body.getReader();
-        reader.read().then(({ value }) => (deleted = value));
+        reader.read().then(({value}) => (deleted = value));
       });
     if (deleted) {
-      showNotification("Bookmark deleted", "success", 2000);
+      showNotification('Bookmark deleted', 'success', 2000);
     } else {
       showNotification(
         "There was a problem, couldn't deleted the bookmark",
-        "error",
+        'error',
         3000
       );
     }
@@ -94,11 +87,11 @@ export default function Bookmark(props) {
       return v;
     });
     if (deleted) {
-      showNotification("Deleted tag", "success", 2000);
+      showNotification('Deleted tag', 'success', 2000);
     } else {
       showNotification(
         "There was a problem, couldn't delete the tag",
-        "error",
+        'error',
         2000
       );
     }
@@ -108,51 +101,45 @@ export default function Bookmark(props) {
   return (
     <div
       className={` ${
-        themeContext.dark ? "bg-gray-900" : "bg-gray-100"
+        themeContext.dark ? 'bg-gray-900' : 'bg-gray-100'
       } p-5 rounded-lg`}
       style={{
         ...props.style,
         top: props.style.top + 10,
         height: props.style.height - 10,
-      }}
-    >
+      }}>
       <div className="">
         <div className="flex flex-row items-center">
           <a
-            target={"_blank"}
-            href={url.startsWith("http") ? url : `http://${url}`}
-          >
+            target={'_blank'}
+            href={url.startsWith('http') ? url : `http://${url}`}>
             <span
-              style={{ color: "#1a73e8" }}
+              style={{color: '#1a73e8'}}
               className={`${
-                themeContext.dark ? "text-gray-500" : "text-indigo-500"
-              } text-2xl hover:underline cursor-pointer mr-10`}
-            >
+                themeContext.dark ? 'text-gray-500' : 'text-indigo-500'
+              } text-2xl hover:underline cursor-pointer mr-10`}>
               {title}
             </span>
           </a>
           <div
             className={`flex flex-row absolute`}
-            style={{ top: "1rem", right: "1rem" }}
-          >
+            style={{top: '1rem', right: '1rem'}}>
             <span
               className="flex flex-row text-sm cursor-pointer"
-              onClick={edit}
-            >
-              <Suspense fallback={""}>
+              onClick={edit}>
+              <Suspense fallback={''}>
                 <EditIcon tailwindColor={`text-gray-600`} />
               </Suspense>
               <span className={`text-gray-600 hover:text-blue-500`}>edit </span>
             </span>
             <span className="flex flex-row text-sm cursor-pointer">
-              <Suspense fallback={""}>
+              <Suspense fallback={''}>
                 <DeleteIcon tailwindColor={`text-gray-600`} />
               </Suspense>
               <span
                 onClick={deleteBookmark}
-                className={`text-gray-600 hover:text-red-500`}
-              >
-                {" "}
+                className={`text-gray-600 hover:text-red-500`}>
+                {' '}
                 delete
               </span>
             </span>
@@ -177,13 +164,13 @@ export default function Bookmark(props) {
 }
 
 const tagsQuery = selectorFamily({
-  key: "TagQuery",
+  key: 'TagQuery',
   get: (bookmarkID) => async () => {
     return await fetchTagsAsync(bookmarkID);
   },
 });
 
-function Tags({ bookmarkId }) {
+function Tags({bookmarkId}) {
   const tags = useRecoilValue(tagsQuery(bookmarkId));
 
   return (
@@ -201,7 +188,7 @@ function Tags({ bookmarkId }) {
   );
 }
 
-function TagSkeleton({ handleAddTag }) {
+function TagSkeleton({handleAddTag}) {
   let [isAdding, setAdding] = useState(false);
   const inputRef = useCallback((node) => {
     if (node) {
@@ -211,9 +198,9 @@ function TagSkeleton({ handleAddTag }) {
 
   const handleTagChange = (e) => {
     let value = e.target.value;
-    if (value.endsWith(" ")) {
+    if (value.endsWith(' ')) {
       handleAddTag(value.slice(0, value.length - 1));
-      e.target.value = "";
+      e.target.value = '';
     }
   };
 
@@ -226,21 +213,20 @@ function TagSkeleton({ handleAddTag }) {
       ref={inputRef}
       onBlur={() => setAdding(false)}
       onChange={handleTagChange}
-      placeholder={"tag"}
-      style={{ borderRadius: "2rem" }}
+      placeholder={'tag'}
+      style={{borderRadius: '2rem'}}
       className="p-1 pl-4 w-24 text-gray-600 ml-2 focus:outline-none focus:border-indigo-400 border border-gray-400 rounded appearance-none leading-normal"
     />
   ) : (
     <span
       className="border cursor-pointer hover:bg-gray-200 p-1 border-dashed border-gray-600 text-gray-600 rounded-full"
-      onClick={handleAdd}
-    >
+      onClick={handleAdd}>
       add +
     </span>
   );
 }
 
-function Description({ description }) {
+function Description({description}) {
   return (
     <div className={`flex-column mb-3`}>
       <div className="bookmark-description text-gray-800">{description}</div>

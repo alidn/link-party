@@ -1,42 +1,27 @@
-import React, {
-  Suspense,
-  useState,
-  unstable_useTransition as useTransition,
-  useContext,
-  useEffect,
-} from "react";
-import { FixedSizeList } from "react-window";
-import { getAllGroups } from "../api/groups";
-import { useWindowSize } from "../hooks";
-import { useHistory } from "react-router-dom";
-import { ThemeContext } from "../App";
-import SpinnerCircle from "./SpinnerCircle";
+import React, {Suspense, useState, useContext} from 'react';
+import {FixedSizeList} from 'react-window';
+import {getAllGroups} from '../api/groups';
+import {useWindowSize} from '../hooks';
+import {useHistory} from 'react-router-dom';
+import {ThemeContext} from '../App';
+import SpinnerCircle from './SpinnerCircle';
 import {
   atom,
-  selector,
   selectorFamily,
-  useRecoilCallback,
+  useRecoilValue,
   useSetRecoilState,
-} from "recoil/dist";
-import { useRecoilState } from "recoil";
-import {
-  getBookmarksOfGroup,
-  getBookmarksOfGroupAsync,
-} from "../api/bookmarks";
-import Spinner from "./Spinner";
-import { createCache } from "react/unstable-cache";
-import { wrapPromise } from "../api/utils";
-import { fetch } from "./FetcherProvider";
+} from 'recoil/dist';
+import {getBookmarksOfGroupAsync} from '../api/bookmarks';
 
 const groups = getAllGroups();
 
 export const currentBookmarksState = atom({
-  key: "currentBookmarksState",
+  key: 'currentBookmarksState',
   default: [],
 });
 
 export const currentGroupIDState = atom({
-  key: "group-id",
+  key: 'group-id',
   default: 5,
 });
 
@@ -51,31 +36,23 @@ export default function Groups() {
 }
 
 export const bookmarksQuery = selectorFamily({
-  key: "BookmarksQuery",
+  key: 'BookmarksQuery',
   get: (groupID) => async () => {
     return await getBookmarksOfGroupAsync(groupID);
   },
 });
 
-const APIResources = createCache((path) => {});
-
-function Group({ index, data, style }) {
+function Group({index, data, style}) {
   let themeContext = useContext(ThemeContext);
   let history = useHistory();
-  let [creatorName, setCreatorName] = useState("");
-  let [groupID, setGroupID] = useRecoilState(currentGroupIDState);
-  let setBookmarks = useSetRecoilState(currentBookmarksState);
-  const [startTransition, isPending] = useTransition({
-    // Wait 10 seconds before fallback
-    timeoutMs: 10000,
-  });
-  let [showChanging, setShowChanging] = useState(false);
-  const { name, id, membersCount, creator } = data[index];
+  let [creatorName] = useState('');
+  let groupID = useRecoilValue(currentGroupIDState);
+  const {name, id, membersCount} = data[index];
   let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
 
   const handleClick = () => {
     setCurrentGroupID(id);
-    history.push("/" + id);
+    history.push('/' + id);
   };
 
   return (
@@ -84,47 +61,42 @@ function Group({ index, data, style }) {
       className={`mt-2 cursor-pointer rounded-lg p-5 border ${
         groupID === id
           ? ` border-transparent ${
-              themeContext.dark ? "bg-gray-900" : " bg-indigo-100"
+              themeContext.dark ? 'bg-gray-900' : ' bg-indigo-100'
             }`
           : ` ${
-              themeContext.dark ? "hover:bg-gray-600" : "hover:bg-gray-100"
+              themeContext.dark ? 'hover:bg-gray-600' : 'hover:bg-gray-100'
             }  border-transparent`
       }  `}
       style={{
         ...style,
         top: style.top + 5,
         height: style.height - 5,
-      }}
-    >
+      }}>
       <span>
         <span
           className={`${
-            themeContext.dark ? "text-gray-300" : "text-gray-700"
-          } text-sm`}
-        >
-          {creatorName} /{" "}
+            themeContext.dark ? 'text-gray-300' : 'text-gray-700'
+          } text-sm`}>
+          {creatorName} /{' '}
         </span>
         <span
           className={`${
-            themeContext.dark ? "text-gray-400" : "text-gray-800"
-          } text-lg`}
-        >
+            themeContext.dark ? 'text-gray-400' : 'text-gray-800'
+          } text-lg`}>
           {name}
         </span>
       </span>
       <div
         className={`${
-          themeContext.dark ? "text-gray-400" : "text-gray-700"
-        } text-sm`}
-      >
+          themeContext.dark ? 'text-gray-400' : 'text-gray-700'
+        } text-sm`}>
         <span>{membersCount} members</span>
       </div>
-      {showChanging && <Spinner />}
     </div>
   );
 }
 
-function GroupListWindow({ groupsReader, changeGroup }) {
+function GroupListWindow({groupsReader}) {
   let groups = groupsReader.read();
   const [, height] = useWindowSize();
 
@@ -134,8 +106,7 @@ function GroupListWindow({ groupsReader, changeGroup }) {
       height={(height * 85) / 100}
       width={300}
       itemSize={100}
-      itemCount={groups.length}
-    >
+      itemCount={groups.length}>
       {Group}
     </FixedSizeList>
   );

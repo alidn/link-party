@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import "./styles/BookmarkEditModal.css";
+import React, {useEffect} from 'react';
+import './styles/BookmarkEditModal.css';
 
-import { useNotification } from "./notification";
+import {useNotification} from './notification';
 
 export default function BookmarkEditModal({
   setEditing,
@@ -12,10 +12,8 @@ export default function BookmarkEditModal({
 }) {
   let addNotif = useNotification();
 
-  useEffect(() => {
-  }, [addNotif]);
+  useEffect(() => {}, [addNotif]);
 
-  const save = () => {};
   const cancel = () => {
     setEditing(false);
   };
@@ -32,10 +30,7 @@ export default function BookmarkEditModal({
       </div>
       <div className="bookmark-url">{url}</div>
 
-      <div
-        transition={{ duration: 0.1 }}
-        className="description-textarea-container"
-      >
+      <div className="description-textarea-container">
         <label className="description-textarea-label">description</label>
         <textarea
           className="description-textarea"
@@ -51,9 +46,8 @@ export default function BookmarkEditModal({
       </div>
 
       <button
-        onClick={() => addNotif("success", 1000)}
-        className="bookmark-edit-modal-save"
-      >
+        onClick={() => addNotif('success', 1000)}
+        className="bookmark-edit-modal-save">
         Save
       </button>
       <button onClick={cancel} className="bookmark-edit-modal-cancel">

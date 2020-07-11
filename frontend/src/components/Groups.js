@@ -25,6 +25,11 @@ export const currentGroupIDState = atom({
   default: 5,
 });
 
+export const currentHoverGroupId = atom({
+  key: 'hover-id',
+  default: 5,
+});
+
 export default function Groups() {
   return (
     <Suspense fallback={<SpinnerCircle />}>
@@ -49,6 +54,11 @@ function Group({index, data, style}) {
   let groupID = useRecoilValue(currentGroupIDState);
   const {name, id, membersCount} = data[index];
   let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
+  let setHoverGroupId = useSetRecoilState(currentHoverGroupId);
+
+  const handleHover = () => {
+    setHoverGroupId(id);
+  };
 
   const handleClick = () => {
     setCurrentGroupID(id);
@@ -58,6 +68,7 @@ function Group({index, data, style}) {
   return (
     <div
       onClick={handleClick}
+      onMouseEnter={handleHover}
       className={`mt-2 cursor-pointer rounded-lg p-5 border ${
         groupID === id
           ? ` border-transparent ${

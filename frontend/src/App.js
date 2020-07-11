@@ -9,7 +9,10 @@ import './tailwind.generated.css';
 import Spinner from './components/Spinner.js';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import {Notifications} from './components/notification';
-import Groups, {currentGroupIDState} from './components/Groups';
+import Groups, {
+  currentGroupIDState,
+  currentHoverGroupId,
+} from './components/Groups';
 import ModalProvider from './components/ModalProvider';
 import {useRecoilValue} from 'recoil/dist';
 import FetcherProvider from './components/FetcherProvider';
@@ -23,14 +26,28 @@ const Bookmarks = React.lazy(() => import('./components/Bookmarks.js'));
 function App() {
   let [darkTheme] = useState(true);
   let currentGroupID = useRecoilValue(currentGroupIDState);
+  let hoverGroupID = useRecoilValue(currentHoverGroupId);
   let [startTransition, isPending] = unstable_useTransition({
     timeoutMs: 1500,
   });
   let [comp, setComp] = useState('');
+  let [hoverComp, setHoverComp] = useState('');
+
+  const prefetch = (id) => {
+    setHoverComp(<Bookmarks reader={getBookmarksOfGroup(id)} />);
+  };
+
+  useEffect(() => {
+    prefetch(hoverGroupID);
+  }, [hoverGroupID]);
 
   useEffect(() => {
     startTransition(() => {
-      setComp(<Bookmarks reader={getBookmarksOfGroup(currentGroupID)} />);
+      if (hoverComp === '') {
+        setComp(<Bookmarks reader={getBookmarksOfGroup(currentGroupID)} />);
+      } else {
+        setComp(hoverComp);
+      }
     });
   }, [currentGroupID]);
 

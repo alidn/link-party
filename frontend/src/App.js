@@ -21,7 +21,7 @@ export const ThemeContext = React.createContext({dark: false});
 const Bookmarks = React.lazy(() => import('./components/Bookmarks.js'));
 
 function App() {
-  let [darkTheme] = useState(false);
+  let [darkTheme] = useState(true);
   let currentGroupID = useRecoilValue(currentGroupIDState);
   let [startTransition, isPending] = unstable_useTransition({
     timeoutMs: 1500,
@@ -32,17 +32,17 @@ function App() {
     startTransition(() => {
       setComp(<Bookmarks reader={getBookmarksOfGroup(currentGroupID)} />);
     });
-  }, [currentGroupID, startTransition]);
+  }, [currentGroupID]);
 
   return (
     <FetcherProvider>
       <ThemeContext.Provider value={{dark: darkTheme}}>
         <ModalProvider>
           {isPending && <Spinner />}
-          <div className={`${darkTheme ? 'bg-gray-700' : ''}`}>
+          <div
+            style={darkTheme ? {backgroundColor: '#282c35'} : {}}
+            className={`${darkTheme ? 'bg-gray-900' : ''}`}>
             <Router>
-              <Notifications />
-
               <div>
                 <div id="main" className="flex flex-row mt-5">
                   <Switch>

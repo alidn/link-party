@@ -3,6 +3,7 @@ import {VariableSizeList} from 'react-window';
 import {useWindowSize} from '../hooks';
 import Bookmark from './Bookmark';
 import Spinner from './Spinner';
+import SpinnerCircle from './SpinnerCircle';
 
 const AddBookmarkSkeleton = React.lazy(() => import('./AddBookmarkSkeleton'));
 
@@ -11,7 +12,7 @@ export default function Bookmarks({reader}) {
 
   return (
     <div>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<SpinnerCircle />}>
         <AddBookmarkSkeleton />
         <BookmarkListWindow bookmarks={bookmarks1} />
       </Suspense>

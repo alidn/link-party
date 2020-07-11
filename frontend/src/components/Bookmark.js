@@ -101,9 +101,10 @@ export default function Bookmark(props) {
   return (
     <div
       className={` ${
-        themeContext.dark ? 'bg-gray-900' : 'bg-gray-100'
+        themeContext.dark ? 'bg-gray-800' : 'bg-gray-100'
       } p-5 rounded-lg`}
       style={{
+        backgroundColor: themeContext.dark ? '#363c48' : '',
         ...props.style,
         top: props.style.top + 10,
         height: props.style.height - 10,
@@ -114,10 +115,12 @@ export default function Bookmark(props) {
             target={'_blank'}
             href={url.startsWith('http') ? url : `http://${url}`}>
             <span
-              style={{color: '#1a73e8'}}
+              style={{color: themeContext.dark ? '#ffa7c4' : '#1a73e8'}}
               className={`${
-                themeContext.dark ? 'text-gray-500' : 'text-indigo-500'
-              } text-2xl hover:underline cursor-pointer mr-10`}>
+                themeContext.dark ? 'text-gray-200' : 'text-indigo-500'
+              } text-2xl hover:underline cursor-pointer mr-10 ${
+                themeContext.dark && 'font-bold'
+              }`}>
               {title}
             </span>
           </a>
@@ -130,7 +133,12 @@ export default function Bookmark(props) {
               <Suspense fallback={''}>
                 <EditIcon tailwindColor={`text-gray-600`} />
               </Suspense>
-              <span className={`text-gray-600 hover:text-blue-500`}>edit </span>
+              <span
+                className={`${
+                  themeContext.dark ? 'text-gray-200' : 'text-gray-600'
+                } hover:text-blue-500`}>
+                edit{' '}
+              </span>
             </span>
             <span className="flex flex-row text-sm cursor-pointer">
               <Suspense fallback={''}>
@@ -138,7 +146,9 @@ export default function Bookmark(props) {
               </Suspense>
               <span
                 onClick={deleteBookmark}
-                className={`text-gray-600 hover:text-red-500`}>
+                className={`${
+                  themeContext.dark ? 'text-gray-200' : 'text-gray-600'
+                } hover:text-red-500`}>
                 {' '}
                 delete
               </span>
@@ -150,14 +160,25 @@ export default function Bookmark(props) {
         <Description description={description} isEditing={isEditing} />
         <Suspense fallback={<SpinnerCircle />}>
           <Tags
+            dark={themeContext.dark}
             handleDelete={handleDeleteTag}
             bookmarkId={id}
             handleAddTag={handleAddTag}
             addedTag={addedTag}
           />
         </Suspense>
-        <span className="bookmark-creator">By you </span>
-        <span className="bookmark-time">2 hours ago</span>
+        <span
+          className={`${
+            themeContext.dark ? 'text-gray-300' : 'text-gray-600'
+          }`}>
+          By you{' '}
+        </span>
+        <span
+          className={`${
+            themeContext.dark ? 'text-gray-300' : 'text-gray-600'
+          }`}>
+          2 hours ago
+        </span>
       </div>
     </div>
   );
@@ -170,16 +191,24 @@ const tagsQuery = selectorFamily({
   },
 });
 
-function Tags({bookmarkId}) {
+function Tags({bookmarkId, dark}) {
   const tags = useRecoilValue(tagsQuery(bookmarkId));
 
   return (
     <div className="mt-1 mb-1">
-      <span>Tags: </span>
-      <TagSkeleton />
+      <span className={`${dark ? 'text-gray-200' : 'text-gray-600'}`}>
+        Tags:{' '}
+      </span>
+      <TagSkeleton dark={dark} />
       {tags ? (
         tags.map((tag, index) => (
-          <Tag key={tag.id} index={index} tagName={tag.name} tagId={tag.id} />
+          <Tag
+            dark={dark}
+            key={tag.id}
+            index={index}
+            tagName={tag.name}
+            tagId={tag.id}
+          />
         ))
       ) : (
         <span>Loading...</span>
@@ -188,7 +217,7 @@ function Tags({bookmarkId}) {
   );
 }
 
-function TagSkeleton({handleAddTag}) {
+function TagSkeleton({handleAddTag, dark}) {
   let [isAdding, setAdding] = useState(false);
   const inputRef = useCallback((node) => {
     if (node) {
@@ -215,11 +244,17 @@ function TagSkeleton({handleAddTag}) {
       onChange={handleTagChange}
       placeholder={'tag'}
       style={{borderRadius: '2rem'}}
-      className="p-1 pl-4 w-24 text-gray-600 ml-2 focus:outline-none focus:border-indigo-400 border border-gray-400 rounded appearance-none leading-normal"
+      className={`p-1 pl-4 w-24 ${dark && 'bg-gray-600'} ${
+        dark ? 'text-gray-200' : 'text-gray-600 ml-2'
+      } focus:outline-none focus:border-indigo-400 border border-gray-400 rounded appearance-none leading-normal`}
     />
   ) : (
     <span
-      className="border cursor-pointer hover:bg-gray-200 p-1 border-dashed border-gray-600 text-gray-600 rounded-full"
+      className={`border cursor-pointer ${
+        dark ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
+      } p-1 border-dashed border-gray-600 ${
+        dark ? 'text-gray-200' : 'text-gray-600'
+      } rounded-full`}
       onClick={handleAdd}>
       add +
     </span>

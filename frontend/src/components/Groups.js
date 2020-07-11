@@ -64,13 +64,16 @@ function Group({index, data, style}) {
               themeContext.dark ? 'bg-gray-900' : ' bg-indigo-100'
             }`
           : ` ${
-              themeContext.dark ? 'hover:bg-gray-600' : 'hover:bg-gray-100'
+              themeContext.dark
+                ? 'hover:border-gray-500'
+                : 'hover:border-indigo-400'
             }  border-transparent`
       }  `}
       style={{
         ...style,
         top: style.top + 5,
         height: style.height - 5,
+        backgroundColor: groupID === id && themeContext.dark ? '#363c48' : '',
       }}>
       <span>
         <span

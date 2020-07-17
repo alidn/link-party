@@ -118,9 +118,7 @@ export default function Bookmark(props) {
               style={{color: themeContext.dark ? '#ffa7c4' : '#1a73e8'}}
               className={`${
                 themeContext.dark ? 'text-gray-200' : 'text-indigo-500'
-              } text-2xl hover:underline cursor-pointer mr-10 ${
-                themeContext.dark && 'font-bold'
-              }`}>
+              } text-2xl hover:underline cursor-pointer mr-10`}>
               {title}
             </span>
           </a>

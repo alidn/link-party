@@ -1,8 +1,8 @@
-import React, {Suspense, useState, useContext} from 'react';
+import React, {Suspense, useState, useContext, useEffect} from 'react';
 import {FixedSizeList} from 'react-window';
 import {getAllGroups} from '../api/groups';
 import {useWindowSize} from '../hooks';
-import {useHistory} from 'react-router-dom';
+import {useHistory, useParams} from 'react-router-dom';
 import {ThemeContext} from '../App';
 import SpinnerCircle from './SpinnerCircle';
 import {
@@ -22,7 +22,7 @@ export const currentBookmarksState = atom({
 
 export const currentGroupIDState = atom({
   key: 'group-id',
-  default: 5,
+  default: sessionStorage.getItem('group-id') || 5,
 });
 
 export const currentHoverGroupId = atom({
@@ -31,6 +31,8 @@ export const currentHoverGroupId = atom({
 });
 
 export default function Groups() {
+  let {id} = useParams;
+
   return (
     <Suspense fallback={<SpinnerCircle />}>
       <div className="ml-10 mr-10">
@@ -51,18 +53,24 @@ function Group({index, data, style}) {
   let themeContext = useContext(ThemeContext);
   let history = useHistory();
   let [creatorName] = useState('');
-  let groupID = useRecoilValue(currentGroupIDState);
+  let {id: groupID} = useParams();
   const {name, id, membersCount} = data[index];
-  let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
   let setHoverGroupId = useSetRecoilState(currentHoverGroupId);
+  let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
+  console.log(groupID, id);
+
+  useEffect(() => {
+    console.log(sessionStorage.getItem('group-id'));
+  }, []);
 
   const handleHover = () => {
     setHoverGroupId(id);
   };
 
   const handleClick = () => {
-    setCurrentGroupID(id);
     history.push('/' + id);
+    sessionStorage.setItem('group-id', id);
+    setCurrentGroupID(id);
   };
 
   return (
@@ -70,7 +78,7 @@ function Group({index, data, style}) {
       onClick={handleClick}
       onMouseEnter={handleHover}
       className={`mt-2 cursor-pointer rounded-lg p-5 border ${
-        groupID === id
+        groupID == id
           ? ` border-transparent ${
               themeContext.dark ? 'bg-gray-900' : ' bg-indigo-100'
             }`

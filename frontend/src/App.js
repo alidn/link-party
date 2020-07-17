@@ -24,11 +24,11 @@ export const ThemeContext = React.createContext({dark: false});
 const Bookmarks = React.lazy(() => import('./components/Bookmarks.js'));
 
 function App() {
-  let [darkTheme] = useState(true);
+  let [darkTheme] = useState(false);
   let currentGroupID = useRecoilValue(currentGroupIDState);
   let hoverGroupID = useRecoilValue(currentHoverGroupId);
   let [startTransition, isPending] = unstable_useTransition({
-    timeoutMs: 1500,
+    timeoutMs: 500,
   });
   let [comp, setComp] = useState('');
   let [hoverComp, setHoverComp] = useState('');
@@ -55,23 +55,23 @@ function App() {
     <FetcherProvider>
       <ThemeContext.Provider value={{dark: darkTheme}}>
         <ModalProvider>
-          {isPending && <Spinner />}
           <div
             style={darkTheme ? {backgroundColor: '#282c35'} : {}}
             className={`${darkTheme ? 'bg-gray-900' : ''}`}>
             <Router>
-              <div>
-                <div id="main" className="flex flex-row mt-5">
-                  <Switch>
-                    <Route path="/">
-                      <Groups />
-                      <Suspense
-                        fallback={<SpinnerCircle width={40} height={40} />}>
-                        {comp}
-                      </Suspense>
-                    </Route>
-                  </Switch>
-                </div>
+              <div
+                style={{position: 'fixed', width: '100%'}}
+                id="main"
+                className="flex flex-row mt-5">
+                <Switch>
+                  <Route path="/:id">
+                    <Groups />
+                    <Suspense
+                      fallback={<SpinnerCircle width={35} height={35} />}>
+                      {comp}
+                    </Suspense>
+                  </Route>
+                </Switch>
               </div>
             </Router>
           </div>

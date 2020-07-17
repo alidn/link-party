@@ -12,7 +12,7 @@ export default function Bookmarks({reader}) {
 
   return (
     <div>
-      <Suspense fallback={<SpinnerCircle />}>
+      <Suspense fallback={<p></p>}>
         <AddBookmarkSkeleton />
         <BookmarkListWindow bookmarks={bookmarks1} />
       </Suspense>

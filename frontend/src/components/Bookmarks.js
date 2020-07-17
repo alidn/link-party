@@ -1,4 +1,4 @@
-import React, {Suspense} from 'react';
+import React, {Suspense, useEffect, useMemo, useState} from 'react';
 import {VariableSizeList} from 'react-window';
 import {useWindowSize} from '../hooks';
 import Bookmark from './Bookmark';
@@ -8,13 +8,22 @@ import SpinnerCircle from './SpinnerCircle';
 const AddBookmarkSkeleton = React.lazy(() => import('./AddBookmarkSkeleton'));
 
 export default function Bookmarks({reader}) {
-  const bookmarks1 = reader.read();
+  let [bookmarks, setBookmarks] = useState(reader.read());
+
+  useEffect(() => {
+    setBookmarks(reader.read());
+  }, [reader]);
+
+  const handleSave = (bookmark) => {
+    if (!Array.isArray(bookmark.tags)) bookmark.tags = [];
+    setBookmarks((prev) => prev.concat(bookmark));
+  };
 
   return (
     <div>
       <Suspense fallback={<p></p>}>
-        <AddBookmarkSkeleton />
-        <BookmarkListWindow bookmarks={bookmarks1} />
+        <AddBookmarkSkeleton handleSave={handleSave} />
+        <BookmarkListWindow bookmarks={bookmarks} />
       </Suspense>
     </div>
   );

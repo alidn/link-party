@@ -57,11 +57,6 @@ function Group({index, data, style}) {
   const {name, id, membersCount} = data[index];
   let setHoverGroupId = useSetRecoilState(currentHoverGroupId);
   let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
-  console.log(groupID, id);
-
-  useEffect(() => {
-    console.log(sessionStorage.getItem('group-id'));
-  }, []);
 
   const handleHover = () => {
     setHoverGroupId(id);

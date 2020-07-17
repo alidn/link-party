@@ -8,7 +8,7 @@ import {currentGroupIDState} from './Groups';
 
 let CloseIcon = React.lazy(() => import('./icons/close'));
 
-export default function AddBookmarkSkeleton() {
+export default function AddBookmarkSkeleton({handleSave}) {
   const group = useRecoilValue(currentGroupIDState);
 
   let [isAdding, setAdding] = useState(false);
@@ -38,13 +38,13 @@ export default function AddBookmarkSkeleton() {
       return;
     }
     setLoading(true);
-    saveBookmark({url, description, group, title, tags: tags.slice(1)}).then(
-      () => {
-        setLoading(false);
-        setAdding(false);
-        // handleAddBookmark({ url, description, group, title });
-      }
-    );
+    saveBookmark({url, description, group, title, tags}).then((data) => {
+      setLoading(false);
+      setAdding(false);
+      data.json().then((newBookmark) => {
+        handleSave(newBookmark);
+      });
+    });
   };
 
   const cancel = () => setAdding((v) => !v);

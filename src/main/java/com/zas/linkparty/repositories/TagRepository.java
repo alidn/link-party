@@ -32,11 +32,13 @@ public class TagRepository implements CrudRepository<Tag, Long> {
             entity = getByName(entity.getName());
         }
         if (entity == null) {
+            System.out.println("Entity null----------------------------------------");
             return null;
         }
         Object[] params = {entity.getId(), bookmarkId};
         int[] argTypes = {Types.INTEGER, Types.INTEGER};
         int rowsUpdated = db.update(TagQueries.insertIntoBookmarkTags, params, argTypes);
+        System.out.println(rowsUpdated);
         return rowsUpdated > 0 ? entity : null;
     }
 

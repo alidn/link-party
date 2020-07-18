@@ -8,7 +8,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class GroupRepository implements CrudRepository<Group, Long> {
     private Long authenticatedUserId = null;
@@ -82,6 +84,17 @@ public class GroupRepository implements CrudRepository<Group, Long> {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Iterable<Group> findAllForUser(String username) {
+       ArrayList<Group> filteredGroups = new ArrayList<>();
+       Iterable<Group> allGroups = findAll();
+       for (Group g : allGroups) {
+           if (userRepository.isMemberOfGroup(g.getId(), username)) {
+               filteredGroups.add(g);
+           }
+       }
+       return filteredGroups;
     }
 
     @Override

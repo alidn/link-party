@@ -1,15 +1,19 @@
 package com.zas.linkparty.controller;
 
+import com.fasterxml.jackson.databind.ser.std.IterableSerializer;
 import com.zas.linkparty.models.Bookmark;
 import com.zas.linkparty.repositories.BookmarkRepository;
 import com.zas.linkparty.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.security.Principal;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class BookmarkController {
@@ -35,11 +39,16 @@ public class BookmarkController {
     }
 
     @GetMapping("/api/groups/{groupId}/bookmarks")
-    public Iterable<Bookmark> bookmarksOfGroup(Principal principal, @PathVariable Long groupId) {
+    public ResponseEntity<Iterable<Bookmark>> bookmarksOfGroup(Principal principal, @PathVariable Long groupId) {
+        CacheControl cacheControl = CacheControl.maxAge(10, TimeUnit.SECONDS)
+                .noTransform()
+                .mustRevalidate();
         if (!userRepository.isMemberOfGroup(groupId, principal.getName())) {
-            return new ArrayList<Bookmark>();
+            return ResponseEntity.status(401)
+                    .body(new ArrayList<>());
         }
-        return bookmarkRepository.findBookmarksOfGroup(groupId);
+
+        return ResponseEntity.ok(bookmarkRepository.findBookmarksOfGroup(groupId));
     }
 
     @GetMapping("/api/tags/{tagName}/bookmarks")

@@ -7,6 +7,7 @@ import com.zas.linkparty.repositories.queries.BookmarkQueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -67,7 +68,8 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
             return bookmark;
         }
         for (Tag tag : entity.getTags()) {
-            bookmark.addTag(tagRepository.saveToBookmark(tag, entity.getId()));
+            Tag t = tagRepository.saveToBookmark(tag, bookmark.getId());
+            bookmark.addTag(t);
         }
         return bookmark;
     }
@@ -95,9 +97,8 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
 
     public Iterable<Bookmark> findBookmarksWithTag(String username, String tagName) {
         Object[] params = {tagName};
-        List<Bookmark> bookmarks = db.query(bookmarkQueries.findBookmarksWithTag, params, this::mapRowToBookmark);
         // TODO only show the bookmarks that the user can see.
-        return bookmarks;
+        return db.query(bookmarkQueries.findBookmarksWithTag, params, this::mapRowToBookmark);
     }
 
     @Override

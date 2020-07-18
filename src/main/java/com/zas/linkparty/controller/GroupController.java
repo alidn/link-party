@@ -20,7 +20,7 @@ public class GroupController {
     @GetMapping("/api/groups")
     public Iterable<Group> groups(Principal principal) {
         // Only return the group which the user is authorized to see.
-        return groupRepository.findAll();
+        return groupRepository.findAllForUser(principal.getName());
     }
 
     @PostMapping("/api/groups/create")

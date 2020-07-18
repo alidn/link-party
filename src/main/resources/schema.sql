@@ -46,6 +46,6 @@ create table if not exists "tags"
 create table if not exists "bookmark_tag"
 (
     "bookmark_tag_id" serial not null,
-    "tag_id"          integer references tags (tag_id),
-    "bookmark_id"     integer references bookmarks (bookmark_id)
+    "tag_id"          integer references tags (tag_id) not null,
+    "bookmark_id"     integer references bookmarks (bookmark_id) not null
 );

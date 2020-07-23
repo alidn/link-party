@@ -1,4 +1,10 @@
-import React, {useState, useContext, useCallback, Suspense} from 'react';
+import React, {
+  useState,
+  useContext,
+  useCallback,
+  Suspense,
+  useEffect,
+} from 'react';
 import {ThemeContext} from '../App';
 import {addTagAsync, deleteTagAsync, fetchTagsAsync} from '../api/tags';
 import SpinnerCircle from './SpinnerCircle';
@@ -7,12 +13,26 @@ import {useNotification} from './notification';
 import {addModal} from './ModalProvider';
 import {deleteBookmarkAsync} from '../api/bookmarks';
 import {selectorFamily, useRecoilValue} from 'recoil/dist';
+import {motion} from 'framer-motion';
 
 let EditIcon = React.lazy(() => import('./icons/edit'));
 let DeleteIcon = React.lazy(() => import('./icons/delete'));
 
+function daysElapsedSince(date) {
+  let elapsedMs = new Date().getTime() - date.getTime();
+  return 30 - Math.floor(-elapsedMs / (1000 * 60 * 60 * 24));
+}
+
+function parseDate(date) {
+  let [year, month, day] = date.split('-');
+  return new Date(year, month, day);
+}
+
 export default function Bookmark(props) {
-  const {id, url, title, description} = props.data[props.index];
+  const {id, url, title, description, handleDelete, createdDate} = props.data[
+    props.index
+  ];
+  let daysPassed = daysElapsedSince(parseDate(createdDate));
   let [isEditing] = useState(false);
   let [addedTag, setAddedTag] = useState(null);
   let themeContext = useContext(ThemeContext);
@@ -37,13 +57,13 @@ export default function Bookmark(props) {
             placeholder={'title'}
             defaultValue={title}
             style={{color: '#1a73e8'}}
-            className={`bg-white w-3/4 m-3 text-lg focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
+            className={`bg-white w-3/4 m-3 text-lg focus:outline-none focus:border-indigo-400 border border-gray-300 rounded p-2 appearance-none leading-normal`}
           />
         </div>
         <div>
           <span className={`ml-3 text-gray-800`}>Url: </span>
           <input
-            className={`bg-white text-gray-700 w-3/4 m-3 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
+            className={`bg-white text-gray-700 w-3/4 m-3 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded p-2 appearance-none leading-normal`}
             placeholder={'url'}
             defaultValue={url}
           />
@@ -56,7 +76,7 @@ export default function Bookmark(props) {
             defaultValue={description}
             style={{width: '90%'}}
             rows={4}
-            className={`bg-white text-gray-700  m-3 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
+            className={`bg-white text-gray-700  m-3 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded p-2 appearance-none leading-normal`}
           />
         </div>
       </div>
@@ -65,21 +85,7 @@ export default function Bookmark(props) {
   };
 
   const deleteBookmark = () => {
-    let deleted = deleteBookmarkAsync(id)
-      .then((resp) => resp.body)
-      .then((body) => {
-        const reader = body.getReader();
-        reader.read().then(({value}) => (deleted = value));
-      });
-    if (deleted) {
-      showNotification('Bookmark deleted', 'success', 2000);
-    } else {
-      showNotification(
-        "There was a problem, couldn't deleted the bookmark",
-        'error',
-        3000
-      );
-    }
+    handleDelete(id);
   };
 
   const handleDeleteTag = async (index, tagId) => {
@@ -155,7 +161,11 @@ export default function Bookmark(props) {
         </div>
 
         <div className="bookmark-url text-gray-600 mb-3">{url}</div>
-        <Description description={description} isEditing={isEditing} />
+        <Description
+          dark={themeContext.dark}
+          description={description}
+          isEditing={isEditing}
+        />
         <Suspense fallback={<SpinnerCircle />}>
           <Tags
             dark={themeContext.dark}
@@ -175,7 +185,7 @@ export default function Bookmark(props) {
           className={`${
             themeContext.dark ? 'text-gray-300' : 'text-gray-600'
           }`}>
-          2 hours ago
+          {daysPassed === 0 ? 'today' : `${daysPassed} days ago`}
         </span>
       </div>
     </div>
@@ -190,17 +200,43 @@ const tagsQuery = selectorFamily({
 });
 
 function Tags({bookmarkId, dark}) {
-  const tags = useRecoilValue(tagsQuery(bookmarkId));
+  const initTags = useRecoilValue(tagsQuery(bookmarkId));
+  let [tags, setTags] = useState([]);
+  const addNotification = useNotification();
+
+  useEffect(() => {
+    setTags(initTags);
+  }, [initTags]);
+
+  const handleAddTag = (newTag) => {
+    addTagAsync(newTag, bookmarkId)
+      .then((v) => v.json())
+      .then((t) => {
+        setTags((prev) => prev.concat(t));
+      });
+  };
+
+  const handleDeleteTag = (index, tagId) => {
+    deleteTagAsync(bookmarkId, tagId).then((deleted) => {
+      if (deleted) {
+        addNotification('deleted tag', 'success', 2000);
+        setTags((prev) => prev.filter((el) => el.id !== tagId));
+      } else {
+        addNotification('there was an error', 'error', 2000);
+      }
+    });
+  };
 
   return (
     <div className="mt-1 mb-1">
       <span className={`${dark ? 'text-gray-200' : 'text-gray-600'}`}>
         Tags:{' '}
       </span>
-      <TagSkeleton dark={dark} />
+      <TagSkeleton handleAddTag={handleAddTag} dark={dark} />
       {tags ? (
         tags.map((tag, index) => (
           <Tag
+            handleDelete={handleDeleteTag}
             dark={dark}
             key={tag.id}
             index={index}
@@ -259,10 +295,15 @@ function TagSkeleton({handleAddTag, dark}) {
   );
 }
 
-function Description({description}) {
+function Description({description, dark}) {
   return (
     <div className={`flex-column mb-3`}>
-      <div className="bookmark-description text-gray-800">{description}</div>
+      <div
+        className={`bookmark-description ${
+          dark ? 'text-gray-300' : 'text-gray-800'
+        }`}>
+        {description}
+      </div>
     </div>
   );
 }

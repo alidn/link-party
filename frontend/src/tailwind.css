@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* TOOLTIP */
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+
+  position: fixed;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+* {
+  overflow: visible
+}
+
+/* */
 .progress {
   position: fixed;
   height: 5px;

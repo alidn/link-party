@@ -37,7 +37,7 @@ export default function ModalProvider(props) {
   }, []);
 
   return (
-    <div>
+    <React.Fragment>
       <AnimatePresence>
         {modalVisible && (
           <motion.div
@@ -48,17 +48,18 @@ export default function ModalProvider(props) {
             style={{
               position: 'fixed',
               zIndex: '100',
-              width: '55%',
+              width: '65%',
               margin: '5% auto',
+              top: '10%',
               left: 0,
               right: 0,
             }}
-            className={`bg-white rounded-lg`}>
+            className={`bg-white rounded-lg shadow-2xl`}>
             {modal}
             <div className={`flex flex-row rounded-lg`}>
               <button
                 style={{color: '#1a73e8'}}
-                className={`m-3 p-1 focus:bg-indigo-100 text-gray-700 hover:bg-gray-100 m-3 p-2 text-lg w-20 rounded focus:outline-none`}
+                className={`m-3 p-1 focus:bg-indigo-100 text-gray-700 hover:bg-gray-100 text-lg w-20 rounded focus:outline-none`}
                 onClick={handleOk}>
                 Save
               </button>
@@ -85,14 +86,14 @@ export default function ModalProvider(props) {
           style={{
             position: 'fixed',
             width: '100vw',
-            height: '100vh',
+            height: '120%',
             zIndex: '10',
-            backgroundColor: 'gray',
+            backgroundColor: 'black',
             opacity: 0.4,
           }}
         />
         {props.children}
       </div>
-    </div>
+    </React.Fragment>
   );
 }

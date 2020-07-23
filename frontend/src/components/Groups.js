@@ -1,17 +1,13 @@
-import React, {Suspense, useState, useContext, useEffect} from 'react';
+import React, {Suspense, useEffect} from 'react';
 import {FixedSizeList} from 'react-window';
 import {getAllGroups} from '../api/groups';
 import {useWindowSize} from '../hooks';
-import {useHistory, useParams} from 'react-router-dom';
-import {ThemeContext} from '../App';
-import SpinnerCircle from './SpinnerCircle';
-import {
-  atom,
-  selectorFamily,
-  useRecoilValue,
-  useSetRecoilState,
-} from 'recoil/dist';
+import {useParams} from 'react-router-dom';
+import {atom, selectorFamily, useSetRecoilState} from 'recoil/dist';
 import {getBookmarksOfGroupAsync} from '../api/bookmarks';
+import Spinner from './Spinner';
+import {Group} from './Group';
+import AddGroup from './AddGroup';
 
 const groups = getAllGroups();
 
@@ -22,20 +18,26 @@ export const currentBookmarksState = atom({
 
 export const currentGroupIDState = atom({
   key: 'group-id',
-  default: sessionStorage.getItem('group-id') || 5,
+  default: sessionStorage.getItem('group-id') || 0,
 });
 
 export const currentHoverGroupId = atom({
   key: 'hover-id',
-  default: 5,
+  default: sessionStorage.getItem('group-id') || 0,
 });
 
 export default function Groups() {
-  let {id} = useParams;
+  let {id} = useParams();
+  let setCurrentGroupIDState = useSetRecoilState(currentGroupIDState);
+
+  useEffect(() => {
+    setCurrentGroupIDState(parseInt(id));
+  }, [id]);
 
   return (
-    <Suspense fallback={<SpinnerCircle />}>
+    <Suspense fallback={<Spinner />}>
       <div className="ml-10 mr-10">
+        <AddGroup />
         <GroupListWindow groupsReader={groups} />
       </div>
     </Suspense>
@@ -48,70 +50,6 @@ export const bookmarksQuery = selectorFamily({
     return await getBookmarksOfGroupAsync(groupID);
   },
 });
-
-function Group({index, data, style}) {
-  let themeContext = useContext(ThemeContext);
-  let history = useHistory();
-  let [creatorName] = useState('');
-  let {id: groupID} = useParams();
-  const {name, id, membersCount} = data[index];
-  let setHoverGroupId = useSetRecoilState(currentHoverGroupId);
-  let setCurrentGroupID = useSetRecoilState(currentGroupIDState);
-
-  const handleHover = () => {
-    setHoverGroupId(id);
-  };
-
-  const handleClick = () => {
-    history.push('/' + id);
-    sessionStorage.setItem('group-id', id);
-    setCurrentGroupID(id);
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      onMouseEnter={handleHover}
-      className={`mt-2 cursor-pointer rounded-lg p-5 border ${
-        groupID == id
-          ? ` border-transparent ${
-              themeContext.dark ? 'bg-gray-900' : ' bg-indigo-100'
-            }`
-          : ` ${
-              themeContext.dark
-                ? 'hover:border-gray-500'
-                : 'hover:border-indigo-400'
-            }  border-transparent`
-      }  `}
-      style={{
-        ...style,
-        top: style.top + 5,
-        height: style.height - 5,
-        backgroundColor: groupID === id && themeContext.dark ? '#363c48' : '',
-      }}>
-      <span>
-        <span
-          className={`${
-            themeContext.dark ? 'text-gray-300' : 'text-gray-700'
-          } text-sm`}>
-          {creatorName} /{' '}
-        </span>
-        <span
-          className={`${
-            themeContext.dark ? 'text-gray-400' : 'text-gray-800'
-          } text-lg`}>
-          {name}
-        </span>
-      </span>
-      <div
-        className={`${
-          themeContext.dark ? 'text-gray-400' : 'text-gray-700'
-        } text-sm`}>
-        <span>{membersCount} members</span>
-      </div>
-    </div>
-  );
-}
 
 function GroupListWindow({groupsReader}) {
   let groups = groupsReader.read();

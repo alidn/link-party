@@ -1,10 +1,11 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useContext} from 'react';
 import {saveBookmark} from '../api/bookmarks';
 import SpinnerCircle from './SpinnerCircle';
 import {motion} from 'framer-motion';
 import {useNotification} from './notification';
 import {useRecoilValue} from 'recoil/dist';
 import {currentGroupIDState} from './Groups';
+import {ThemeContext} from '../App';
 
 let CloseIcon = React.lazy(() => import('./icons/close'));
 
@@ -18,6 +19,7 @@ export default function AddBookmarkSkeleton({handleSave}) {
   let [loading, setLoading] = useState(false);
   let [tags, setTags] = useState(['']);
   let showNotification = useNotification();
+  let {dark} = useContext(ThemeContext);
 
   const handleTagDelete = (index) => {
     setTags((prevTags) => prevTags.filter((_value, idx) => idx !== index));
@@ -64,20 +66,20 @@ export default function AddBookmarkSkeleton({handleSave}) {
       initial="hidden"
       animate="visible"
       variants={variants}
-      transition={{duration: 0.05}}
-      className={`bg-gray-100 rounded-lg pt-5 pb-5 mb-3`}>
+      transition={{duration: 0.1}}
+      className={`bg-gray-100 rounded-lg mt-5 pt-5 pb-5 mb-3`}>
       <input
         onChange={(e) => setTitle(e.target.value)}
         ref={titleInputRef}
         style={{width: '80%'}}
-        className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 px-4 block appearance-none leading-normal"
+        className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded py-2 px-4 block appearance-none leading-normal"
         type="text"
         placeholder="title"
       />
       <input
         onChange={(e) => setUrl(e.target.value)}
         style={{width: '60%'}}
-        className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 px-4 block appearance-none leading-normal"
+        className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded py-2 px-4 block appearance-none leading-normal"
         type="text"
         placeholder="url"
       />
@@ -87,7 +89,7 @@ export default function AddBookmarkSkeleton({handleSave}) {
           onChange={handleTagChange}
           type={'text'}
           placeholder={`tagname`}
-          className={`bg-white w-24 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg p-2 appearance-none leading-normal`}
+          className={`bg-white w-24 focus:outline-none focus:border-indigo-400 border border-gray-300 rounded p-2 appearance-none leading-normal`}
         />
         {tags.map((tag, index) => (
           <Tag
@@ -102,12 +104,24 @@ export default function AddBookmarkSkeleton({handleSave}) {
         onChange={(e) => setDescription(e.target.value)}
         rows={4}
         style={{width: '80%'}}
-        className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded-lg py-2 w-3/4 px-4 block appearance-none leading-normal"
+        className="m-3 bg-white focus:outline-none focus:border-indigo-400 border border-gray-300 rounded py-2 w-3/4 px-4 block appearance-none leading-normal"
         placeholder="description"
       />
       <button
-        style={{color: '#1a73e8', minWidth: '4rem', maxWidth: '8rem'}}
-        className={`m-3 p-1 text-lg rounded text-gray-700 hover:bg-indigo-100 hover:text-blue-800 focus:outline-none focus:bg-indigo-200 text-center`}
+        style={{
+          color: dark ? '' : '#1a73e8',
+          minWidth: '4rem',
+          maxWidth: '8rem',
+        }}
+        className={`
+        m-3
+        ${dark ? 'bg-gray-600' : ''} py-1 px-2 rounded   focus:outline-none ${
+          dark ? 'text-gray-400' : ''
+        }
+          ${dark ? 'hover:bg-red-200' : 'hover:bg-gray-200'}
+          ${dark ? '' : 'focus:bg-gray-300'}
+          
+          `}
         onClick={save}>
         {loading ? (
           <div className={`flex flex-row`}>
@@ -119,18 +133,31 @@ export default function AddBookmarkSkeleton({handleSave}) {
         )}
       </button>
       <button
-        style={{color: '#1a73e8'}}
-        className={`m-3 p-1 focus:bg-indigo-200 text-gray-700 hover:bg-indigo-100 m-3 p-1 text-lg w-16 rounded focus:outline-none`}
+        style={{
+          color: dark ? '' : '#1a73e8',
+          minWidth: '4rem',
+          maxWidth: '8rem',
+        }}
+        className={`
+        m-3
+        ${dark ? 'bg-gray-600' : ''} py-1 px-2 rounded   focus:outline-none ${
+          dark ? 'text-gray-400' : ''
+        }
+          ${dark ? 'hover:bg-red-200' : 'hover:bg-gray-200'}
+          ${dark ? '' : 'focus:bg-gray-300'}
+          
+          `}
         onClick={cancel}>
         Cancel
       </button>
     </motion.div>
   ) : (
-    <div
+    <motion.div
+      whileTap={{scale: 0.9}}
       onClick={() => setAdding(true)}
-      className="p-3 mb-3 rounded focus:bg-gray-200 hover:bg-gray-100 cursor-pointer border border-gray-600 border-dashed text-center">
+      className="p-3 mt-5 mb-3 rounded focus:bg-gray-200 hover:bg-gray-100 cursor-pointer border border-gray-600 border-dashed text-center">
       <p className="text-xl text-gray-600">Add Bookmark + </p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -138,7 +165,7 @@ export function Tag({tagName, handleDelete, index, tagId, dark}) {
   return (
     <span
       style={{borderRadius: '2em', maxWidth: '50px'}}
-      className={`m-2 ${index === 0 ? 'hidden' : ''}  border inline text-sm ${
+      className={`m-2 ${tagName === '' && 'hidden'} border inline text-sm ${
         dark ? 'border-red-400' : 'border-indigo-400'
       } py-1 px-3
       ${dark ? 'text-gray-200' : 'text-gray-700'}

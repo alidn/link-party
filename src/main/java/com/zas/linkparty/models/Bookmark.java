@@ -121,4 +121,18 @@ public class Bookmark {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "Bookmark{" +
+                "id=" + id +
+                ", url='" + url + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", createdDate=" + createdDate +
+                ", tags=" + tags +
+                ", creator=" + creator +
+                ", group=" + group +
+                '}';
+    }
 }

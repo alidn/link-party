@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class GroupRepository implements CrudRepository<Group, Long> {
     private Long authenticatedUserId = null;
@@ -48,13 +47,13 @@ public class GroupRepository implements CrudRepository<Group, Long> {
         } catch (Exception e) {
             return null;
         }
-        addUserToGroup(group.getId(), authenticatedUserId);
+        addCreatorToGroup(group.getId(), authenticatedUserId);
         return group;
     }
 
-    public void addUserToGroup(Long groupId, Long userId) {
+    public void addCreatorToGroup(Long groupId, Long userId) {
         Object[] params = {userId, groupId, "created"};
-        db.update(this.groupQueries.addUser, params);
+        db.update(this.groupQueries.addCreator, params);
     }
 
     @Override

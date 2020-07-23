@@ -35,6 +35,12 @@ public class BookmarkRepository implements CrudRepository<Bookmark, Long> {
         this.bookmarkQueries = bookmarkQueries;
     }
 
+    public List<Bookmark> getBookmarkForKeywords(Long groupId, ArrayList<String> keywords) {
+        String query = String.join(" | ", keywords);
+        Object[] params = {query, query, query, groupId};
+        return db.query(bookmarkQueries.getFromQuery, params, this::mapRowToBookmark);
+    }
+
     public boolean deleteBookmark(Long bookmarkId) {
         Object[] params = {bookmarkId, bookmarkId};
         int rows = db.update(bookmarkQueries.deleteBookmark, params);

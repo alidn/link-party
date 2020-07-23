@@ -56,3 +56,4 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 
+src/tailwind.generated.css

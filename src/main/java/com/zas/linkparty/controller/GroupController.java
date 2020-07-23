@@ -19,6 +19,7 @@ public class GroupController {
 
     @GetMapping("/api/groups")
     public Iterable<Group> groups(Principal principal) {
+        System.out.println("Giving groups");
         // Only return the group which the user is authorized to see.
         return groupRepository.findAllForUser(principal.getName());
     }

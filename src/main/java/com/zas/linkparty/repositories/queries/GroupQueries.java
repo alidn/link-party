@@ -9,5 +9,5 @@ public class GroupQueries {
 
     public static String findAll = "select group_id, group_name, creator, invite_edit_url, invite_view_url, date_created from groups";
 
-    public static String addUser = "insert into memberships (user_id, group_id, type) values (?, ?, ?::membership_type);";
+    public static String addCreator = "insert into memberships (user_id, group_id, type) values (?, ?, ?::membership_type);";
 }

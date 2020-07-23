@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.security.Principal;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 public class BookmarkController {
@@ -34,21 +36,38 @@ public class BookmarkController {
 
     @PostMapping("/api/bookmarks/create")
     public Bookmark save(@RequestBody Bookmark bookmark, Principal principal) {
+        System.out.println("_-------------------------");
         // TODO: make sure the user is authorized to add bookmark to the group.
-        return bookmarkRepository.save(bookmark, principal.getName());
+        var b = bookmarkRepository.save(bookmark, principal.getName());
+        System.out.println(b);
+        return b;
     }
 
     @GetMapping("/api/groups/{groupId}/bookmarks")
     public ResponseEntity<Iterable<Bookmark>> bookmarksOfGroup(Principal principal, @PathVariable Long groupId) {
-        CacheControl cacheControl = CacheControl.maxAge(10, TimeUnit.SECONDS)
-                .noTransform()
-                .mustRevalidate();
         if (!userRepository.isMemberOfGroup(groupId, principal.getName())) {
             return ResponseEntity.status(401)
                     .body(new ArrayList<>());
         }
 
         return ResponseEntity.ok(bookmarkRepository.findBookmarksOfGroup(groupId));
+    }
+
+    private class SearchQuery {
+        private String[] keywords;
+    }
+
+    @PostMapping("/api/groups/{groupId}/bookmarks/search")
+    public Iterable<Long> search(Principal principal, @PathVariable Long groupId, @RequestBody Map<String, ArrayList<String>> body) {
+        if (!userRepository.isMemberOfGroup(groupId, principal.getName())) {
+            return new ArrayList<>();
+        }
+
+        return bookmarkRepository
+                .getBookmarkForKeywords(groupId, body.get("keywords"))
+                .stream()
+                .map(Bookmark::getId)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/api/tags/{tagName}/bookmarks")
